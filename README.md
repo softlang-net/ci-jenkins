@@ -1,2 +1,4 @@
 # ci-jenkins
-jenkins 部署脚本
+
+- cicd with jenkins
+
