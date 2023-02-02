@@ -2,27 +2,29 @@
 #------deploy for h5 with NPM ------
 TZ=UTC-8
 set -e;
-# ❓❓❓ export vars by jenkins
+# 🔻🔻🔻🔻🔻🔻🔻🔻🔻
+ci_env_profile=${ci_env_profile:-dev}
+ci_env_image_tag=${BUILD_NUMBER:-latest}
+ci_env_registry=${ci_env_registry:ci.devops.os:5000}
+
+ci_docker_context_build=${ci_compose_cpus:-default}
+ci_docker_context_deploy=${ci_compose_cpus:-default}
+
 ci_compose_cpus=${ci_compose_cpus:-1}
 ci_compose_memory=${ci_compose_memory:-512M}
 ci_compose_replicas=${ci_compose_replicas:-1}
-ci_compose_service=${ci_compose_service}
+ci_compose_service_name=${ci_compose_service}
+ci_compose_service_port=${ci_compose_service:-80}
 ci_compose_network=${ci_compose_network}
+
 ci_router_entry=${ci_router_entry:-traefik}
-ci_router_prefix=${ci_router_prefix:-$ci_compose_service}
+ci_router_prefix=${ci_router_prefix:-"/$ci_compose_service"}
+
 ci_dockerfile=${ci_compose_dockerfile:-Dockerfile}
 ci_git_project=${ci_git_project}
-ci_git_base=${ci_git_base}
+ci_git_src_dir=${ci_git_src_dir}
 # ❓❓❓
-# 🔻🔻🔻🔻🔻🔻🔻🔻🔻
-CI_ENV="uat"
-CI_DOCKER_CONTEXT_DEPLOY="${CI_ENV}-dss" #⛔部署service的docker环境
-CI_DOCKER_CONTEXT_BUILD="default" #⛔构建image的docker环境
-CI_DOCKER_NETWORK="uat_farm" #⛔service运行的docker网络
-ci_service_port=80 #⛔service端口（traefik-loadbalancer.server.port）
-ci_compose_image="ci3.devops.dss:5000/dss/${CI_ENV}/${ci_compose_service}:${CI_ENV}-${BUILD_NUMBER}" #⛔镜像tag&仓库
-ci_env_profile=${ci_env_profile:-env}   #⛔docker env profile, 如：application.env.yaml
-# /api-xxx-xxx
+ci_compose_image="${ci_env_registry}/${ci_env_profile}/${ci_compose_service_name}:${ci_env_image_tag}" #⛔镜像tag&仓库
 ci_env_app_path=${ci_router_prefix} #⛔docker env app_path
 # work_dir
 ci_work_dir="/opt/deploy/uat/${JOB_NAME}" #⛔构建目录
@@ -38,7 +40,7 @@ echo ">>📌 2. clone from git"
 # 1. git clone && git archive --remote=ssh://git@xxx <branch | HEAD> <prefix_path/xxx/xx> 
 rm ${ci_work_dir} -rf && mkdir -p ${ci_work_dir} && cd ${ci_work_dir}
 git clone -b $ci_git_branch ${ci_git_host}/${ci_git_project} ${ci_work_dir}/src
-cd $(realpath src/${ci_git_base}) # change the real source-code work-dir
+cd $(realpath src/${ci_git_src_dir}) # change the real source-code work-dir
 
 # 2. build
 # 执行打包

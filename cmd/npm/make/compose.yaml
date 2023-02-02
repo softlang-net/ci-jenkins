@@ -15,7 +15,7 @@ services:
     container_name: node-complier
     user: node
     working_dir: /opt/make
-    # tty: true
+    tty: true
     volumes:
       - /opt/make:/opt/make
     environment:
