@@ -7,9 +7,11 @@ ci_env_profile=${ci_env_profile:-dev}
 ci_env_image_tag=${BUILD_NUMBER:-latest}
 ci_env_registry=${ci_env_registry:ci.devops.os:5000}
 
-ci_docker_context_build=${ci_compose_cpus:-default}
 ci_docker_context_deploy=${ci_compose_cpus:-default}
+ci_docker_context_build=${ci_compose_cpus:-default}
+ci_docker_build_container=${ci_docker_build_container:-"node-complier"}
 
+# runtime resource config
 ci_compose_cpus=${ci_compose_cpus:-1}
 ci_compose_memory=${ci_compose_memory:-512M}
 ci_compose_replicas=${ci_compose_replicas:-1}
@@ -20,26 +22,27 @@ ci_compose_network=${ci_compose_network}
 ci_router_entry=${ci_router_entry:-traefik}
 ci_router_prefix=${ci_router_prefix:-"/$ci_compose_service"}
 
+# compiler config
 ci_dockerfile=${ci_compose_dockerfile:-Dockerfile}
 ci_git_project=${ci_git_project}
 ci_git_src_dir=${ci_git_src_dir}
 # ❓❓❓
 ci_compose_image="${ci_env_registry}/${ci_env_profile}/${ci_compose_service_name}:${ci_env_image_tag}" #⛔镜像tag&仓库
-ci_env_app_path=${ci_router_prefix} #⛔docker env app_path
+#ci_env_app_path=${ci_router_prefix} #⛔docker env app_path
 # work_dir
-ci_work_dir="/opt/deploy/uat/${JOB_NAME}" #⛔构建目录
-ci_git_host="ssh://git@ci2.devops.dss:10022" #git clone
-ci_git_devops=${ci_git_host}/zyb/devops.git
-ci_git_env_config=env/Stars_UAT.conf #⛔env-config@git
+ci_work_dir="/opt/deploy/${ci_env_profile}/${JOB_NAME:-$ci_compose_service_name}" #⛔构建目录
 # 🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺
 
 echo ">>📌 1. environments"
 env
 
+# switch to the build docker_context
+export DOCKER_CONTEXT=${CI_DOCKER_CONTEXT_BUILD}
+
 echo ">>📌 2. clone from git"
 # 1. git clone && git archive --remote=ssh://git@xxx <branch | HEAD> <prefix_path/xxx/xx> 
 rm ${ci_work_dir} -rf && mkdir -p ${ci_work_dir} && cd ${ci_work_dir}
-git clone -b $ci_git_branch ${ci_git_host}/${ci_git_project} ${ci_work_dir}/src
+git clone -b $ci_git_branch $ci_git_project ${ci_work_dir}/src
 cd $(realpath src/${ci_git_src_dir}) # change the real source-code work-dir
 
 # 2. build
@@ -53,7 +56,7 @@ echo ">>📌 3. npm install && build"
 #docker exec -i -w $PWD cicd-node12.dev npm run build --quiet
 npm_bash_c="npm install --registry https://registry.npmmirror.com/ --quiet && npm run build --quiet"
 #npm_bash_c="npm install --cache ./.npm_cache --registry http://127.0.0.1:4873/ --force --quiet && npm run build --quiet"
-docker exec -i -w $PWD -u node cicd-node12.dev bash -c "${npm_bash_c}"
+docker exec -i -w $PWD -u node $ci_docker_build_container bash -c "${npm_bash_c}"
 
 LAST_ERROR_CODE=$?
 if [ ! "$LAST_ERROR_CODE" = "0" ]
@@ -66,7 +69,6 @@ fi
 # git download single file
 # git archive --remote=git@github.com:foo/bar.git --prefix=path/to/ HEAD:path/to/ |  tar xvf -
 echo ">>📌 4. build image && push to registry"
-export DOCKER_CONTEXT=${CI_DOCKER_CONTEXT_BUILD}
 docker image prune -f
 docker build --network host --force-rm --compress \
     --build-arg profile=${ci_env_profile} \

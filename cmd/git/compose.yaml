@@ -1,0 +1,43 @@
+# docker compose -p cicd-git -f compose.yaml up -d
+# docker compose -p cicd-git down
+# https://docs.docker.com/compose/compose-file/compose-file-v3/
+# rollback_config, restart_policy
+# for custom image
+version: "3.8"
+
+services:
+  cicd-git:
+    #image: alpine:3.16
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    hostname: node-complier
+    container_name: node-complier
+    user: node
+    working_dir: /opt/make
+    tty: true
+    volumes:
+      - /opt/make:/opt/make
+    environment:
+      TZ: "Asia/Shanghai"
+    network_mode: host
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2048M
+      restart_policy:
+        condition: on-failure
+        delay: 30s
+        max_attempts: 3
+        window: 60s
+
+# -- restart_policy --
+# Configures if and how to restart containers when they exit. Replaces restart.
+# condition: One of none, on-failure or any (default: any).
+# delay: How long to wait between restart attempts, specified as a duration (default: 5s).
+# max_attempts: How many times to attempt to restart a container before giving up (default: never give up). If the restart does not succeed within the configured window, this attempt doesn’t count toward the configured max_attempts value. For example, if max_attempts is set to ‘2’, and the restart fails on the first attempt, more than two restarts may be attempted.
+# window: How long to wait before deciding if a restart has succeeded, specified as a duration (default: decide immediately).
+
+
