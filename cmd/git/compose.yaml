@@ -1,4 +1,4 @@
-# docker compose -p cicd-git -f compose.yaml up -d
+# docker compose -p cicd-git -f compose.yaml up --build -d
 # docker compose -p cicd-git down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
@@ -7,17 +7,17 @@ version: "3.8"
 
 services:
   cicd-git:
-    #image: alpine:3.16
+    image: cicd/local/git:latest
     build: 
       context: .
       dockerfile: Dockerfile
-    hostname: node-complier
-    container_name: node-complier
-    user: node
-    working_dir: /opt/make
+    hostname: git-clone-branch
+    container_name: git-clone-branch
+    working_dir: /opt/make/workspace
+    user: git
     tty: true
     volumes:
-      - /opt/make:/opt/make
+      - /opt/make/workspace:/opt/make/workspace
     environment:
       TZ: "Asia/Shanghai"
     network_mode: host
@@ -25,8 +25,8 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '2'
-          memory: 2048M
+          cpus: '1'
+          memory: 1024M
       restart_policy:
         condition: on-failure
         delay: 30s
