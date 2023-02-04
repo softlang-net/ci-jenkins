@@ -1,4 +1,4 @@
-# docker compose -p cicd-git -f compose.yaml up --build -d
+# docker compose -p cicd-git -f compose.yaml up --build --remove-orphans -d
 # docker compose -p cicd-git down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy

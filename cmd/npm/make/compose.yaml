@@ -1,4 +1,4 @@
-# docker compose -p node-compiler -f compose.yaml up -d
+# docker compose -p node-compiler -f compose.yaml up -d --remove-orphans --build
 # docker compose -p node-compiler down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
