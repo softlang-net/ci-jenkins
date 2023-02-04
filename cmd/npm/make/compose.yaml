@@ -17,7 +17,7 @@ services:
     working_dir: /opt/make
     tty: true
     volumes:
-      - /opt/make:/opt/make
+      - /opt/make/workspace:/opt/make/workspace
     environment:
       TZ: "Asia/Shanghai"
     network_mode: host
