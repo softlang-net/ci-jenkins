@@ -1,4 +1,4 @@
-# docker compose -p cicd-git -f compose.yaml up --build --remove-orphans -d
+# docker compose -p cicd-git -f compose.yaml up -d --remove-orphans --build
 # docker compose -p cicd-git down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
@@ -14,9 +14,11 @@ services:
     hostname: git-clone-branch
     container_name: git-clone-branch
     working_dir: /opt/make/workspace
-    user: git
+    #user: git
+    user: 1000:115
     tty: true
     volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
       - /opt/make/workspace:/opt/make/workspace
     environment:
       TZ: "Asia/Shanghai"
