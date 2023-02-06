@@ -9,7 +9,8 @@ ci_env_registry=${ci_env_registry:ci.devops.os:5000}
 
 ci_docker_context_deploy=${ci_compose_cpus:-default}
 ci_docker_context_build=${ci_compose_cpus:-default}
-ci_docker_build_container=${ci_docker_build_container:-"node-complier"}
+ci_container_git=${ci_container_compiler:-"git-docker-cli"}
+ci_container_compiler=${ci_container_compiler:-"node-complier"}
 
 # runtime resource config
 ci_compose_cpus=${ci_compose_cpus:-1}
@@ -26,26 +27,45 @@ ci_router_prefix=${ci_router_prefix:-"/$ci_compose_service"}
 ci_dockerfile=${ci_compose_dockerfile:-Dockerfile}
 ci_git_project=${ci_git_project}
 ci_git_src_dir=${ci_git_src_dir}
-# ❓❓❓
+ci_workspace=${ci_workspace:-"/opt/make/workspace"}
+
+# env_profile
 ci_compose_image="${ci_env_registry}/${ci_env_profile}/${ci_compose_service_name}:${ci_env_image_tag}" #⛔镜像tag&仓库
-#ci_env_app_path=${ci_router_prefix} #⛔docker env app_path
-# work_dir
-ci_work_dir="/opt/deploy/${ci_env_profile}/${JOB_NAME:-$ci_compose_service_name}" #⛔构建目录
+# work_dir for source code & compiler
+ci_work_dir="$ci_workspace/$ci_env_profile/${JOB_NAME:-$ci_compose_service_name}" #⛔构建目录
 # 🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺
 
+# ----- for detect errors -----
+$LAST_ERROR_CODE=0
+function check_docker_return() {
+    if [ ! "$LAST_ERROR_CODE" = "0" ]
+    then
+        echo "❌>> $1, ERROR_CODE=$LAST_ERROR_CODE"
+        exit $LAST_ERROR_CODE
+    fi
+}
+# ----- for detect errors -----
+
 echo ">>📌 1. environments"
-env
+env # print env variables
 
 # switch to the build docker_context
-export DOCKER_CONTEXT=${CI_DOCKER_CONTEXT_BUILD}
+export DOCKER_CONTEXT=${ci_docker_context_build}
 
 echo ">>📌 2. clone from git"
-# 1. git clone && git archive --remote=ssh://git@xxx <branch | HEAD> <prefix_path/xxx/xx> 
-rm ${ci_work_dir} -rf && mkdir -p ${ci_work_dir} && cd ${ci_work_dir}
-git clone -b $ci_git_branch $ci_git_project ${ci_work_dir}/src
-cd $(realpath src/${ci_git_src_dir}) # change the real source-code work-dir
+git_bash_c1="rm ${ci_work_dir} -rf && mkdir -p ${ci_work_dir} && cd ${ci_work_dir}"
+git_bash_c2="git clone -b $ci_git_branch $ci_git_project ${ci_work_dir}/src"
+
+docker exec -i -u git $ci_container_git bash -c "${git_bash_c1}"
+LAST_ERROR_CODE=$?
+check_docker_return "Prepare work_dir failed"
+
+docker exec -i -u git $ci_container_git bash -c "${git_bash_c2}"
+LAST_ERROR_CODE=$?
+check_docker_return "Git clone branch failed"
 
 # 2. build
+export DOCKER_CONTEXT=${ci_docker_context_build}
 # 执行打包
 echo ">>📌 3. npm install && build"
 # ( docker rm -fv tmp-${ci_compose_service} && docker container inspect tmp-${ci_compose_service} ) || echo ">>😊no tmp-${ci_compose_service}"
@@ -56,7 +76,7 @@ echo ">>📌 3. npm install && build"
 #docker exec -i -w $PWD cicd-node12.dev npm run build --quiet
 npm_bash_c="npm install --registry https://registry.npmmirror.com/ --quiet && npm run build --quiet"
 #npm_bash_c="npm install --cache ./.npm_cache --registry http://127.0.0.1:4873/ --force --quiet && npm run build --quiet"
-docker exec -i -w $PWD -u node $ci_docker_build_container bash -c "${npm_bash_c}"
+docker exec -i -w $PWD -u node $ci_container_compiler bash -c "${npm_bash_c}"
 
 LAST_ERROR_CODE=$?
 if [ ! "$LAST_ERROR_CODE" = "0" ]

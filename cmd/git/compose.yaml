@@ -11,11 +11,11 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile
-    hostname: git-clone-branch
-    container_name: git-clone-branch
+    hostname: git-docker-cli
+    container_name: git-docker-cli
     working_dir: /opt/make/workspace
     #user: git
-    user: 1000:115
+    user: 1000:115 # userId:groupid(docker-group-id)
     tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
