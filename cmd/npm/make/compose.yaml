@@ -14,7 +14,7 @@ services:
     hostname: node-complier
     container_name: node-complier
     user: node
-    working_dir: /opt/make
+    working_dir: /opt/make/workspace
     tty: true
     volumes:
       - /opt/make/workspace:/opt/make/workspace

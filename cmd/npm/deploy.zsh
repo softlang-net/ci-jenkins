@@ -53,7 +53,7 @@ env # print env variables
 export DOCKER_CONTEXT=${ci_docker_context_build}
 
 echo ">>📌 2. clone from git"
-git_bash_c1="rm ${ci_work_dir} -rf && mkdir -p ${ci_work_dir} && cd ${ci_work_dir}"
+git_bash_c1="rm -rf ${ci_work_dir} && mkdir -p ${ci_work_dir}"
 git_bash_c2="git clone -b $ci_git_branch $ci_git_project ${ci_work_dir}/src"
 
 docker exec -i -u git $ci_container_git bash -c "${git_bash_c1}"
@@ -76,14 +76,12 @@ echo ">>📌 3. npm install && build"
 #docker exec -i -w $PWD cicd-node12.dev npm run build --quiet
 npm_bash_c="npm install --registry https://registry.npmmirror.com/ --quiet && npm run build --quiet"
 #npm_bash_c="npm install --cache ./.npm_cache --registry http://127.0.0.1:4873/ --force --quiet && npm run build --quiet"
-docker exec -i -w $PWD -u node $ci_container_compiler bash -c "${npm_bash_c}"
-
+docker exec -i -w $ci_work_dir/src -u node $ci_container_compiler bash -c "${npm_bash_c}"
 LAST_ERROR_CODE=$?
-if [ ! "$LAST_ERROR_CODE" = "0" ]
-then
-  echo ">> npm install && build failed (@docker) : $LAST_ERROR_CODE"
-  exit $LAST_ERROR_CODE
-fi
+check_docker_return "npm install && build failed"
+
+echo "finish npm build-OK"
+exit 0;
 
 # 3. docker build
 # git download single file
