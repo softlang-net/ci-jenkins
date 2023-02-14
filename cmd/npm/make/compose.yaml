@@ -6,13 +6,13 @@
 version: "3.8"
 
 services:
-  node-complier:
+  node-compiler:
     image: node:12
     #build: 
     #  context: .
     #  dockerfile: Dockerfile
-    hostname: node-complier
-    container_name: node-complier
+    hostname: node-compiler
+    container_name: node-compiler
     user: node
     working_dir: /opt/make/workspace
     tty: true

@@ -2,31 +2,36 @@
 #------deploy for h5 with NPM ------
 TZ=UTC-8
 set -e;
+if [ ! "$1" = "" ]
+then
+    . $1
+fi
 # 🔻🔻🔻🔻🔻🔻🔻🔻🔻
 ci_env_profile=${ci_env_profile:-dev}
-ci_env_image_tag=${BUILD_NUMBER:-latest}
-ci_env_registry=${ci_env_registry:ci.devops.os:5000}
+ci_env_image_tag=${ci_env_image_tag:-${BUILD_NUMBER:-latest}}
+ci_env_registry=${ci_env_registry:-"image.ci:5000"}
 
-ci_docker_context_deploy=${ci_compose_cpus:-default}
-ci_docker_context_build=${ci_compose_cpus:-default}
-ci_container_git=${ci_container_compiler:-"git-docker-cli"}
+ci_docker_context_deploy=${ci_docker_context_deploy:-default}
+ci_docker_context_build=${ci_docker_context_build:-default}
+ci_container_git=${ci_container_git:-"git-docker-cli"}
 ci_container_compiler=${ci_container_compiler:-"node-complier"}
 
 # runtime resource config
 ci_compose_cpus=${ci_compose_cpus:-1}
 ci_compose_memory=${ci_compose_memory:-512M}
 ci_compose_replicas=${ci_compose_replicas:-1}
-ci_compose_service_name=${ci_compose_service}
-ci_compose_service_port=${ci_compose_service:-80}
+ci_compose_service_name=${ci_compose_service_name:-$JOB_BASE_NAME}
+ci_compose_service_port=${ci_compose_service_port:-80}
 ci_compose_network=${ci_compose_network}
 
 ci_router_entry=${ci_router_entry:-traefik}
 ci_router_prefix=${ci_router_prefix:-"/$ci_compose_service"}
 
 # compiler config
-ci_dockerfile=${ci_compose_dockerfile:-Dockerfile}
+ci_dockerfile=${ci_dockerfile:-Dockerfile}
 ci_git_project=${ci_git_project}
-ci_git_src_dir=${ci_git_src_dir}
+ci_git_branch=${ci_git_branch:-$ci_env_profile}
+ci_git_src_dir=${ci_git_src_dir:-""}
 ci_workspace=${ci_workspace:-"/opt/make/workspace"}
 
 # env_profile
@@ -36,7 +41,7 @@ ci_work_dir="$ci_workspace/$ci_env_profile/${JOB_NAME:-$ci_compose_service_name}
 # 🔺🔺🔺🔺🔺🔺🔺🔺🔺🔺
 
 # ----- for detect errors -----
-$LAST_ERROR_CODE=0
+LAST_ERROR_CODE=0
 function check_docker_return() {
     if [ ! "$LAST_ERROR_CODE" = "0" ]
     then
@@ -68,15 +73,11 @@ check_docker_return "Git clone branch failed"
 export DOCKER_CONTEXT=${ci_docker_context_build}
 # 执行打包
 echo ">>📌 3. npm install && build"
-# ( docker rm -fv tmp-${ci_compose_service} && docker container inspect tmp-${ci_compose_service} ) || echo ">>😊no tmp-${ci_compose_service}"
-#docker run -i --rm -u node -v $PWD:/app -w /app --network host --cpus 3 -m 2048M \
-#    --name tmp-${ci_compose_service} node:16-alpine3.15 \
-#    npm install --registry http://127.0.0.1:4873/ --force --quiet && npm run build --quiet && echo ">>✅packaged by docker🚢"
 #docker exec -i -w $PWD cicd-node12.dev npm install --force --registry https://registry.npmmirror.com/ --quiet
 #docker exec -i -w $PWD cicd-node12.dev npm run build --quiet
 npm_bash_c="npm install --registry https://registry.npmmirror.com/ --quiet && npm run build --quiet"
 #npm_bash_c="npm install --cache ./.npm_cache --registry http://127.0.0.1:4873/ --force --quiet && npm run build --quiet"
-docker exec -i -w $ci_work_dir/src -u node $ci_container_compiler bash -c "${npm_bash_c}"
+docker exec -i -w $ci_work_dir/src/$ci_git_src_dir -u node $ci_container_compiler bash -c "${npm_bash_c}"
 LAST_ERROR_CODE=$?
 check_docker_return "npm install && build failed"
 
