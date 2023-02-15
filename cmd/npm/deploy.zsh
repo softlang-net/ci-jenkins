@@ -96,7 +96,7 @@ docker build --force-rm --compress
 EOF
 )
 echo $image_bash_c
-docker exec -i -w $ci_work_dir/src/$ci_git_src_dir -u git $ci_container_git bash -c "${image_bash_c}"
+docker exec -i -w $ci_work_dir/src/$ci_git_src_dir $ci_container_git bash -c "${image_bash_c}"
 echo ">> finish early"
 exit 0;
 
