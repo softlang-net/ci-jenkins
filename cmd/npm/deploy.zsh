@@ -82,6 +82,7 @@ LAST_ERROR_CODE=$?
 check_docker_return "npm install && build failed"
 
 # 3. docker build
+export DOCKER_CONTEXT=${ci_docker_context_build}
 # git download single file
 # git archive --remote=git@github.com:foo/bar.git --prefix=path/to/ HEAD:path/to/ |  tar xvf -
 echo ">>📌 4. build image && push to registry"
@@ -94,8 +95,8 @@ docker build --force-rm --compress
     -f ${ci_dockerfile} .
 EOF
 )
-
 echo $image_bash_c
+docker exec -i -w $ci_work_dir/src/$ci_git_src_dir -u git $ci_container_git bash -c "${image_bash_c}"
 echo ">> finish early"
 exit 0;
 
