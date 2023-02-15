@@ -51,8 +51,8 @@ function check_docker_return() {
 }
 # ----- for detect errors -----
 
-echo ">>📌 1. environments"
-env # print env variables
+echo ">>📌 1. environments=ci_env_profile"
+#env # print env variables
 
 # switch to the build docker_context
 export DOCKER_CONTEXT=${ci_docker_context_build}
