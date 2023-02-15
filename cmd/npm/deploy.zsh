@@ -92,7 +92,7 @@ image_bash_c="docker build --force-rm --compress
     --build-arg ci_router_prefix=${ci_router_prefix}
     -t '${ci_compose_image}' -f ${ci_dockerfile} ."
 
-echo $image_bash_c
+echo -e $image_bash_c
 docker exec -i -w $ci_work_dir/src/$ci_git_src_dir $ci_container_git bash -c "${image_bash_c}"
 echo ">> finish early"
 exit 0;
