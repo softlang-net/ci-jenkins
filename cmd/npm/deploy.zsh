@@ -83,7 +83,6 @@ check_docker_return "npm install && build failed"
 
 # 3. docker build
 export DOCKER_CONTEXT=${ci_docker_context_build}
-# git download single file
 # git archive --remote=git@github.com:foo/bar.git --prefix=path/to/ HEAD:path/to/ |  tar xvf -
 echo ">>📌 4. build image && push to registry"
 #docker image prune -f
@@ -92,7 +91,7 @@ image_bash_c="docker build --force-rm --compress \\
 --build-arg ci_router_prefix=${ci_router_prefix} \\
 -t ${ci_compose_image} -f ${ci_dockerfile} ."
 
-echo -e $image_bash_c
+echo $image_bash_c
 docker exec -i -w $ci_work_dir/src/$ci_git_src_dir $ci_container_git bash -c "${image_bash_c}"
 echo ">> finish early"
 exit 0;
