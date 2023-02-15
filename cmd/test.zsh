@@ -8,5 +8,10 @@ hello chatGPT
 done
 EOF
 
-ls -l
-cat test.log
+cat <<EOF
+the log line1
+the log line2
+the log line3
+EOF
+
+echo "finish"
