@@ -18,6 +18,7 @@ services:
     tty: true
     volumes:
       - /opt/make/workspace:/opt/make/workspace
+      - /opt/make/compilers:/opt/make/compilers
     environment:
       TZ: "Asia/Shanghai"
     network_mode: host

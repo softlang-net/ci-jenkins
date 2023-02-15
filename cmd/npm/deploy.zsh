@@ -28,7 +28,7 @@ ci_router_entry=${ci_router_entry:-traefik}
 ci_router_prefix=${ci_router_prefix:-"/$ci_compose_service"}
 
 # compiler config
-ci_dockerfile=${ci_dockerfile:-Dockerfile}
+ci_dockerfile=${ci_dockerfile:-"/opt/make/compilers/npm/Dockerfile"}
 ci_git_project=${ci_git_project}
 ci_git_branch=${ci_git_branch:-$ci_env_profile}
 ci_git_src_dir=${ci_git_src_dir:-""}

@@ -20,6 +20,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /opt/make/workspace:/opt/make/workspace
+      - /opt/make/compilers:/opt/make/compilers
     environment:
       TZ: "Asia/Shanghai"
     network_mode: host
