@@ -20,11 +20,12 @@ server {
 EOF
 
 # for options
-RUN echo "\
-map $sent_http_content_type $expires { \n\
-    default         off; \n\
-    text/html       epoch; \n\
-    #application/pdf 42d; \n\
-}" > /etc/nginx/conf.d/_http.conf
+COPY <<EOF /etc/nginx/conf.d/_http.conf
+map $sent_http_content_type $expires {
+    default off;
+    text/html epoch;
+    #application/pdf 42d;
+}
+EOF
 
 CMD ["nginx", "-g", "daemon off;"]
