@@ -81,20 +81,23 @@ docker exec -i -w $ci_work_dir/src/$ci_git_src_dir -u node $ci_container_compile
 LAST_ERROR_CODE=$?
 check_docker_return "npm install && build failed"
 
-echo "finish npm build-OK"
-exit 0;
-
 # 3. docker build
 # git download single file
 # git archive --remote=git@github.com:foo/bar.git --prefix=path/to/ HEAD:path/to/ |  tar xvf -
 echo ">>📌 4. build image && push to registry"
-docker image prune -f
-docker build --network host --force-rm --compress \
-    --build-arg profile=${ci_env_profile} \
-    --build-arg app_path=${ci_env_app_path} \
-    -t "${ci_compose_image}" \
-    -f ${ci_dockerfile} \
-    . # Dockerfile context path
+#docker image prune -f
+image_bash_c=$(cat <<EOF
+docker build --force-rm --compress 
+    --build-arg ci_env_profile=${ci_env_profile} 
+    --build-arg ci_router_prefix=${ci_router_prefix}
+    -t '${ci_compose_image}'
+    -f ${ci_dockerfile} .
+EOF
+)
+
+echo $image_bash_c
+echo ">> finish early"
+exit 0;
 
 docker push ${ci_compose_image}
 docker rmi ${ci_compose_image} || echo ">>❌❌ docker rmi faild: ${ci_compose_image}"
