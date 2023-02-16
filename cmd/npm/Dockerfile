@@ -13,8 +13,8 @@ server {
     server_name _;
     root /usr/share/nginx/html;
     location ${app_path} {
-         alias /web/;
-         expires \$expires;
+        alias /web/;
+        expires \$expires;
     }
 }
 EOF
