@@ -21,7 +21,7 @@ EOF
 
 # for options
 COPY <<EOF /etc/nginx/conf.d/_http.conf
-map $sent_http_content_type $expires {
+map \$sent_http_content_type \$expires {
     default off;
     text/html epoch;
     #application/pdf 42d;
