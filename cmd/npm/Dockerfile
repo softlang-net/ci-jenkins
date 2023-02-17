@@ -5,7 +5,8 @@ WORKDIR /web
 #ENV BUILD_PATH='./dist', default: vue=dist, react=build (config by ENV.BUILD_PATH)
 COPY ./dist   /web
 
-#ARG ci_router_prefix="/ui-debug"
+ARG ci_env_profile
+ARG ci_router_prefix
 ENV app_env=${ci_env_profile:-"dev"}
 ENV app_path=${ci_router_prefix:-"/ui-debug"}
 
