@@ -4,8 +4,8 @@ ENV TZ "Asia/Shanghai"
 WORKDIR /web
 #ENV BUILD_PATH='./dist', default: vue=dist, react=build (config by ENV.BUILD_PATH)
 COPY ./dist   /web
-RUN env
-ARG app_path=${ci_router_prefix:-"/ui-debug"}
+ARG ci_router_prefix="/ui-debug"
+ENV app_path=${ci_router_prefix}
 #RUN ln -s /web /usr/share/nginx/html/${app_path}
 
 COPY <<EOF /etc/nginx/conf.d/default.conf
