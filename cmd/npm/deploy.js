@@ -1,7 +1,22 @@
 const { spawnSync } = require('node:child_process');
 
 var task_step = 0;
+/**
+ * @param {string} key the key name of environment
+ * @param {string} defaultValue return the default value if not exist the key
+ */
+function getEnv(key, defaultValue = '') {
+  return key in process.env ? process.env[key] : defaultValue;
+}
 
+/** check the environment has the key
+ * @param {string} key the key name of environment
+ */
+function hasEnv(key) {
+  return key in process.env;
+}
+
+// print current datetime
 function getNow() {
   const dateObj = new Date();
   let year = dateObj.getFullYear();
@@ -21,14 +36,20 @@ function getNow() {
  */
 function exec(task, context, ...cmd_args) {
   task_step++;
-  console.log(`🟢 ${task_step}. ${getNow()} -- ${task}`)
-  const cmd = spawnSync('docker', cmd_args, { stdio: 'inherit', env: { DOCKER_CONTEXT: context } });
-  if (cmd.status > 0) {
-    console.error(`🔴 context=${context}, command=${command}, :${dc.status}`);
+  console.log(`🟢 start ${task_step}. ${getNow()} ${context}>> ${task}`)
+  const cmd = spawnSync('ls', cmd_args, { stdio: 'inherit', env: { DOCKER_CONTEXT: context } });
+  if (cmd.status != 0) {
+    console.error(`🔴 error ${task_step}. ${getNow()} ${context}>> ${task}, ❎code=${cmd.status}`);
   } else {
-    console.log('>> spawn sync success');
+    // console.error(`🔴 error ${task_step}. ${getNow()} ${context}>> ${task}, ❎code=${cmd.status}`);
+    console.log(`✅ done! ${task_step}. ${getNow()} ${context}>> ${task}`)
   }
 }
 
-exec("text01", 'default', ['service', 'ls'])
-exec("text01", 'default', ['ps', '-a'])
+/** --------- start business coding -------- */
+
+//exec("text01", 'default', ['service', 'ls'])
+exec("text02", 'default', ['-a'])
+
+console.log(`aaa=${getEnv('aaa', 4565)}`)
+console.log(`bbb=${getEnv('bbb', 'go234')}`)
