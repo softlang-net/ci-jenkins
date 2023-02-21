@@ -54,18 +54,18 @@ function getNow() {
  * @param {ReadonlyArray<string>} cmd_args The command args
  */
 function exec(task, env, ...commands) {
-  console.log(`✅ ${getNow()} start >> ${task}`)
+  console.log(`✅ ${getNow()} start ${task}`)
   for (let cmd of commands) {
     printLog(`cmd=${cmd}`)
     const cmdSpawn = spawnSync('sh', ['-c', cmd], { stdio: 'inherit', env: env });
     if (cmdSpawn.status != 0) {
-      console.error(`🔴 ${getNow()} error! >> ${task}, ❎code=${cmdSpawn.status}`);
+      console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
       exit(cmdSpawn.status);
     } else {
       printLog(`cmd=${cmd}`)
     }
   }
-  console.log(`🔵 ${getNow()} done! >> ${task}\n`)
+  console.log(`🔵 ${getNow()} done! ${task}\n`)
 }
 
 module.exports = {
