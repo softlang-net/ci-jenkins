@@ -1,5 +1,10 @@
-#!/bin/node
-const { exec, getEnv, printLog } = require('./deploy.jsp.js');
+#!/usr/bin/node
+const { exec, getEnv, printLog, loadDeployEnv } = require('./deploy.jsp.js');
+let env2 = process.argv[2]
+if (env2) {
+    printLog(`.env=${env2}`)
+    loadDeployEnv(env2)
+}
 
 const
     ci_env_profile = getEnv('ci_env_profile', 'dev'),
@@ -32,13 +37,15 @@ const
 /** --------- start business coding -------- */
 // { DOCKER_CONTEXT: context, cmd: 'the data' }
 //exec("text01", 'default', ['service', 'ls'])
-exec("📌 1. print environments", 'default', 'pwd', 'env')
 let env = {
-    DOCKER_CONTEXT: context,
+    DOCKER_CONTEXT: ci_docker_context_build,
     cmd1: `rm -rf ${ci_work_dir} && mkdir -p ${ci_work_dir}`,
     cmd2: `git clone -b ${ci_git_branch} ${ci_git_project} ${ci_work_dir}/src`
 }
-printLog(env)
+//exec("📌 1. print environments", process.env, 'pwd', 'env')
+printLog(JSON.stringify(env))
+if (1 > 0) process.exit(0)
+
 // 1. workspace
 exec("📌 2. workspace prepare", env, 'env',
     `docker exec -i ${ci_container_git} bash -c "$cmd1"`,

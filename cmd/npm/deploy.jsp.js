@@ -1,5 +1,17 @@
 const { spawnSync } = require('node:child_process');
 const { exit } = require('node:process');
+const fs = require('fs');
+
+/** load environment files
+ * @param {string} envFilePath the filepath ./deploy.env
+ */
+function loadDeployEnv(envFilePath) {
+  fs.readFileSync(envFilePath, { encoding: 'utf8', flag: 'r' }).
+    split('\n').filter((s1) => { return s1 }).map(item1 => {
+      let ix1 = item1.indexOf('=')
+      process.env[item1.substring(0, ix1)] = item1.substring(ix1 + 1)
+    })
+}
 
 /**
  * @param {string} key the key name of environment
@@ -42,20 +54,20 @@ function getNow() {
  * @param {ReadonlyArray<string>} cmd_args The command args
  */
 function exec(task, env, ...commands) {
-  console.log(`✅ ${getNow()} start ${context}>> ${task}`)
+  console.log(`✅ ${getNow()} start >> ${task}`)
   for (let cmd of commands) {
     printLog(`cmd=${cmd}`)
     const cmdSpawn = spawnSync('sh', ['-c', cmd], { stdio: 'inherit', env: env });
     if (cmdSpawn.status != 0) {
-      console.error(`🔴 ${getNow()} error! ${context}>> ${task}, ❎code=${cmdSpawn.status}`);
+      console.error(`🔴 ${getNow()} error! >> ${task}, ❎code=${cmdSpawn.status}`);
       exit(cmdSpawn.status);
     } else {
       printLog(`cmd=${cmd}`)
     }
   }
-  console.log(`🔵 ${getNow()} done! ${context}>> ${task}\n`)
+  console.log(`🔵 ${getNow()} done! >> ${task}\n`)
 }
 
 module.exports = {
-  exec, getEnv, hasEnv, printLog, getNow
+  exec, getEnv, hasEnv, printLog, getNow, loadDeployEnv
 };
