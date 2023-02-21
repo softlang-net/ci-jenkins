@@ -1,4 +1,5 @@
 const { spawnSync } = require('node:child_process');
+const { exit } = require('node:process');
 
 let task_step = 0;
 /**
@@ -20,7 +21,7 @@ function hasEnv(key) {
  * @param {ReadonlyArray<string>} log The command args
  */
 function printLog(...log) {
-  console.log("    >> ".concat(log))
+  console.log(">> ".concat(log))
 }
 
 // print current datetime
@@ -43,25 +44,24 @@ function getNow() {
  */
 function exec(task, context, ...commands) {
   task_step++;
-  console.log(`🟢 start ${task_step}. ${getNow()} ${context}>> ${task}`)
+  console.log(`✅ start ${task_step}. ${getNow()} ${context}>> ${task}`)
   for (let cmd of commands) {
     printLog(`cmd=${cmd}`)
     const cmdSpawn = spawnSync('sh', ['-c', cmd], { stdio: 'inherit', env: { DOCKER_CONTEXT: context } });
     if (cmdSpawn.status != 0) {
       console.error(`🔴 error ${task_step}. ${getNow()} ${context}>> ${task}, ❎code=${cmdSpawn.status}`);
-      return false;
+      exit(cmdSpawn.status);
     } else {
-      // console.error(`🔴 error ${task_step}. ${getNow()} ${context}>> ${task}, ❎code=${cmd.status}`);
-      printLog(`cmd=${cmd}✅`)
+      printLog(`cmd=${cmd}`)
     }
   }
-  console.log(`✅ done! ${task_step}. ${getNow()} ${context}>> ${task}`)
+  console.log(`🔵 done! ${task_step}. ${getNow()} ${context}>> ${task}\n`)
 }
 
 /** --------- start business coding -------- */
 //exec("text01", 'default', ['service', 'ls'])
 exec("text01", 'default', 'pwd', 'ls -l')
-exec("text02", 'default', 'pwd', 'ls -l')
+exec("text02", 'default', 'pwd2', 'ls -l')
 
 console.log(`aaa=${getEnv('aaa', 4565)}`)
 console.log(`bbb=${getEnv('bbb', 'go234')}`)
