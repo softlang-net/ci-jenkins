@@ -38,14 +38,14 @@ function getNow() {
 
 /**
  * @param {string} task The task info
- * @param {string} context The docker context
+ * @param {NodeJS.ProcessEnv} env The docker context
  * @param {ReadonlyArray<string>} cmd_args The command args
  */
-function exec(task, context, ...commands) {
+function exec(task, env, ...commands) {
   console.log(`✅ ${getNow()} start ${context}>> ${task}`)
   for (let cmd of commands) {
     printLog(`cmd=${cmd}`)
-    const cmdSpawn = spawnSync('sh', ['-c', cmd], { stdio: 'inherit', env: { DOCKER_CONTEXT: context } });
+    const cmdSpawn = spawnSync('sh', ['-c', cmd], { stdio: 'inherit', env: env });
     if (cmdSpawn.status != 0) {
       console.error(`🔴 ${getNow()} error! ${context}>> ${task}, ❎code=${cmdSpawn.status}`);
       exit(cmdSpawn.status);
