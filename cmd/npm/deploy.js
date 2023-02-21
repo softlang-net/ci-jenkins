@@ -1,3 +1,5 @@
+#!/bin/node
+
 const { spawnSync } = require('node:child_process');
 const { exit } = require('node:process');
 
