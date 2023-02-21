@@ -45,12 +45,12 @@ let env = {
 }
 //exec("📌 1. print environments", process.env, 'pwd', 'env')
 printLog(JSON.stringify(env))
-if (!env3) process.exit(0)
-
-// 1. workspace
-exec("📌 2. workspace prepare", env, 'env',
-    `docker exec -i ${ci_container_git} bash -c "$cmd1"`,
-    `docker exec -i ${ci_container_git} bash -c "$cmd2"`)
+if (env3) {
+    // 1. workspace
+    exec("📌 2. workspace prepare", env, 'env',
+        `docker exec -i ${ci_container_git} bash -c "$cmd1"`,
+        `docker exec -i ${ci_container_git} bash -c "$cmd2"`)
+}
 
 //docker exec - i - u git $ci_container_git bash - c "${git_bash_c1}"
 //${ ci_docker_context_build }
