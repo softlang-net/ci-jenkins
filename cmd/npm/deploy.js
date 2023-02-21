@@ -1,6 +1,7 @@
 #!/usr/bin/node
 const { exec, getEnv, printLog, loadDeployEnv } = require('./deploy.jsp.js');
 let env2 = process.argv[2]
+let env3 = process.argv[3]
 if (env2) {
     printLog(`.env=${env2}`)
     loadDeployEnv(env2)
@@ -44,7 +45,7 @@ let env = {
 }
 //exec("📌 1. print environments", process.env, 'pwd', 'env')
 printLog(JSON.stringify(env))
-if (1 > 0) process.exit(0)
+if (!env3) process.exit(0)
 
 // 1. workspace
 exec("📌 2. workspace prepare", env, 'env',
