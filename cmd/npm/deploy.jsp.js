@@ -32,7 +32,11 @@ function hasEnv(key) {
  * @param {ReadonlyArray<string>} log The command args
  */
 function printLog(...log) {
-  console.log(">> ".concat(log))
+  if (log.length) {
+    console.log('>> '.concat(log))
+  } else {
+    console.log('')
+  }
 }
 
 // print current datetime
@@ -62,7 +66,7 @@ function exec(task, env, ...commands) {
       console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
       exit(cmdSpawn.status);
     } else {
-      printLog(`cmd=${cmd}`)
+      printLog(``)
     }
   }
   console.log(`🔵 ${getNow()} done! ${task}\n`)
