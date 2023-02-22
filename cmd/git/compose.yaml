@@ -14,7 +14,7 @@ services:
     hostname: git-docker-cli
     container_name: git-docker-cli
     working_dir: /opt/make/workspace
-    #user: git
+    # grep docker /etc/group `groupmod -g 2377 docker`
     user: 1000:${dockergid:-1000} # userId:groupid(docker-group-id)
     tty: true
     volumes:
