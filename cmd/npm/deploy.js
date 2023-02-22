@@ -1,7 +1,7 @@
-#!/usr/bin/node ./deploy.env
+#!node
 const { exec, getEnv, printLog, loadDeployEnv } = require('./deploy.jsp.js');
 let env2 = process.argv[2]
-let env3 = process.argv[3]
+let env3 = process.argv[3] != '0'
 if (env2) {
     printLog(`.env=${env2}`)
     loadDeployEnv(env2)
@@ -9,6 +9,7 @@ if (env2) {
 
 const
     ci_env_profile = getEnv('ci_env_profile', 'dev'),
+    ci_npm_run_script=getEnv('ci_npm_run_script', 'build'),
     ci_env_image_tag = getEnv('ci_env_image_tag', getEnv('BUILD_NUMBER', 'latest')),
     ci_env_registry = getEnv('ci_env_registry', 'image.ci:5000'),
     ci_docker_context_deploy = getEnv('ci_docker_context_deploy', 'default'),
@@ -37,25 +38,29 @@ const
 
 /** --------- start business coding -------- */
 // { DOCKER_CONTEXT: context, cmd: 'the data' }
-//exec("text01", 'default', ['service', 'ls'])
+//exec("📌 print environments", process.env, 'pwd', 'env')
+
+// 📌 workspace: git clone source-code
 let env = {
     DOCKER_CONTEXT: ci_docker_context_build,
     cmd1: `rm -rf ${ci_work_dir} && mkdir -p ${ci_work_dir}`,
     cmd2: `git clone -b ${ci_git_branch} ${ci_git_project} ${ci_work_dir}/src`
 }
-//exec("📌 1. print environments", process.env, 'pwd', 'env')
 printLog(JSON.stringify(env))
 if (env3) {
-    // 1. workspace
-    exec("📌 2. workspace prepare", env, 'env',
+    exec("📌 workspace: git clone source-code", env,
         `docker exec -i ${ci_container_git} bash -c "$cmd1"`,
         `docker exec -i ${ci_container_git} bash -c "$cmd2"`)
 }
 
-//docker exec - i - u git $ci_container_git bash - c "${git_bash_c1}"
-//${ ci_docker_context_build }
-printLog(ci_env_profile)
-
-let docker_context = getEnv('ci_docker_context_build', 'default')
-let command = `rm -rf ${getEnv('ci_work_dir')} && mkdir -p ${getEnv('ci_work_dir')} && git clone -b ${getEnv('ci_git_branch')} ${getEnv('ci_git_project')} ${getEnv('ci_work_dir')}/src`;
-console.log(command)
+// 📌 compiler: npm install && build
+env = {
+    DOCKER_CONTEXT: ci_docker_context_build,
+    work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
+    cmd_compiler: `npm install --registry https://registry.npmmirror.com/ --quiet && npm run ${ci_npm_run_script} --quiet`
+}
+printLog(JSON.stringify(env))
+if (env3) {
+    exec("📌 compiler: npm install && build", env,
+        `docker exec -i -w $work_dir ${ci_container_compiler} bash -c "$cmd_compiler"`)
+}
