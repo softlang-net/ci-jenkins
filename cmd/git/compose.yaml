@@ -1,4 +1,4 @@
-# docker compose -p cicd-git -f compose.yaml up -d --remove-orphans --build
+# dockergid=1000 docker compose -p cicd-git -f compose.yaml up -d --remove-orphans --build
 # docker compose -p cicd-git down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
@@ -15,7 +15,7 @@ services:
     container_name: git-docker-cli
     working_dir: /opt/make/workspace
     #user: git
-    user: 1000:115 # userId:groupid(docker-group-id)
+    user: 1000:${dockergid:-1000} # userId:groupid(docker-group-id)
     tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
