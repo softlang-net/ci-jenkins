@@ -1,4 +1,4 @@
-#!/usr/bin/node ./deploy.env 0
+#!/usr/bin/node ./deploy.env
 const { exec, getEnv, printLog, loadDeployEnv } = require('./deploy.jsp.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3]
