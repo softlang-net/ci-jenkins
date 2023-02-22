@@ -79,6 +79,6 @@ env = {
 printLog(JSON.stringify(env))
 if (env3) {
     exec("📌 build docker image && push to registry", env,
-        `docker exec -i -w $work_dir ${ci_container_git} bash -c "${cmd_image_build}"`,
-        `docker exec -i ${ci_container_git} bash -c "${cmd_image_push}"`)
+        `docker exec -i -w $work_dir ${ci_container_git} bash -c "$cmd_image_build"`,
+        `docker exec -i ${ci_container_git} bash -c "$cmd_image_push"`)
 }
