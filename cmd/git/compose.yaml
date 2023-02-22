@@ -1,4 +1,4 @@
-# dockergid=1000 docker compose -p cicd-git -f compose.yaml up -d --remove-orphans --build
+# docker compose -p cicd-git -f compose.yaml up -d --remove-orphans --build
 # docker compose -p cicd-git down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
@@ -28,19 +28,5 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '1'
-          memory: 1024M
-      restart_policy:
-        condition: on-failure
-        delay: 30s
-        max_attempts: 3
-        window: 60s
-
-# -- restart_policy --
-# Configures if and how to restart containers when they exit. Replaces restart.
-# condition: One of none, on-failure or any (default: any).
-# delay: How long to wait between restart attempts, specified as a duration (default: 5s).
-# max_attempts: How many times to attempt to restart a container before giving up (default: never give up). If the restart does not succeed within the configured window, this attempt doesn’t count toward the configured max_attempts value. For example, if max_attempts is set to ‘2’, and the restart fails on the first attempt, more than two restarts may be attempted.
-# window: How long to wait before deciding if a restart has succeeded, specified as a duration (default: decide immediately).
-
-
+          cpus: "${cpus:-1}"
+          memory: ${memory:-1024M}
