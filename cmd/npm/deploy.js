@@ -10,7 +10,7 @@ if (env2) {
 
 const
     ci_env_profile = getEnv('ci_env_profile', 'dev'),
-    ci_npm_run_script=getEnv('ci_npm_run_script', 'build'),
+    ci_npm_run_script = getEnv('ci_npm_run_script', 'build'),
     ci_env_image_tag = getEnv('ci_env_image_tag', getEnv('BUILD_NUMBER', 'latest')),
     ci_env_registry = getEnv('ci_env_registry', 'image.ci:5000'),
     ci_docker_context_deploy = getEnv('ci_docker_context_deploy', 'default'),
@@ -64,4 +64,21 @@ printLog(JSON.stringify(env))
 if (env3) {
     exec("📌 compiler: npm install && build", env,
         `docker exec -i -w $work_dir ${ci_container_compiler} bash -c "$cmd_compiler"`)
+}
+
+// 📌 build docker image && push to registry
+env = {
+    DOCKER_CONTEXT: ci_docker_context_build,
+    work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
+    cmd_image_build: `docker build --force-rm --compress` +
+        ` --build-arg ci_env_profile=${ci_env_profile}` +
+        ` --build-arg ci_router_prefix=${ci_router_prefix}` +
+        ` -t ${ci_compose_image} -f ${ci_dockerfile} .`,
+    cmd_image_push: `docker push ${ci_compose_image}`
+}
+printLog(JSON.stringify(env))
+if (env3) {
+    exec("📌 build docker image && push to registry", env,
+        `docker exec -i -w $work_dir ${ci_container_git} bash -c "${cmd_image_build}"`,
+        `docker exec -i ${ci_container_git} bash -c "${cmd_image_push}"`)
 }
