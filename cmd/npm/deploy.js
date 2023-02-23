@@ -1,6 +1,6 @@
 #!node
 // mock>> ./deploy.js deploy.env 0
-const { exec, getEnv, printLog, loadDeployEnv } = require('./deploy.jsp.js');
+const { exec, getEnv, printLog, loadDeployEnv, getServiceId } = require('./deploy.jsp.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
 if (env2) {
@@ -84,17 +84,45 @@ if (env3) {
 }
 
 // 📌 deploy service to swarm & running
-env = {
-    DOCKER_CONTEXT: ci_docker_context_deploy,
-    cmd_image_build: `docker build --force-rm --compress` +
-        ` --build-arg ci_env_profile=${ci_env_profile}` +
-        ` --build-arg ci_router_prefix=${ci_router_prefix}` +
-        ` -t ${ci_compose_image} -f ${ci_dockerfile} .`,
-    cmd_image_push: `docker push ${ci_compose_image}`
+/**
+ * @param {string} service_name The service name
+ * @param {string} image_name The docker image name
+ * @param {string} servicePort The service Port, default=80
+ * @param {string} routeEntry The traefik name
+ * @param {string} routePathPrefix The router PathPrefix
+ * @param {string} res_cpu The router PathPrefix
+ * @param {string} res_memory The router PathPrefix
+ * @param {string} res_replicas The router PathPrefix
+ * @returns {string} the cli-command for update service
+ */
+function cmdUpdateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas) {
+    return `docker service update -d`
+        + ` --label-add "cigo=softlang"`
+        + ` --label-add "io.portainer.accesscontrol.public"`
+        + ` --label-add "traefik.http.routers.${service_name}.entrypoints=${routeEntry}"`
+        + ` --label-add "traefik.http.routers.${service_name}.service=${service_name}"`
+        + ` --label-add "traefik.http.routers.${service_name}.rule=PathPrefix(\`${routePathPrefix}\`)"`
+        + ` --label-add "traefik.http.services.${service_name}.loadbalancer.server.port=${servicePort}"`
+        + ` --limit-cpu ${res_cpu}`
+        + ` --limit-memory ${res_memory}`
+        + ` --replicas ${res_replicas}`
+        + ` --image ${image_name} ${service_name}`
 }
-printLog(JSON.stringify(env))
+
+function cmdCreateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas) {
+
+}
+
 if (env3) {
-    exec("📌 build docker image && push to registry", env,
-        `docker exec -i -w $work_dir ${ci_container_git} bash -c "$cmd_image_build"`,
-        `docker exec -i ${ci_container_git} bash -c "$cmd_image_push"`)
+    let service_id = getServiceId(ci_docker_context_deploy, ci_compose_service_name)
+    if (service_id !== false) {
+        // create service
+        env = {
+            DOCKER_CONTEXT: ci_docker_context_deploy,
+            command: ``
+        }
+    }
+    else {
+        // update service
+    }
 }
