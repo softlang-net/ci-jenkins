@@ -14,9 +14,9 @@ services:
     hostname: git-docker-cli
     container_name: git-docker-cli
     working_dir: /opt/make/workspace
-    # grep docker /etc/group 
-    # `groupmod -g 2376 docker` systemctl restart docker.socket 
-    user: 1000:${dockergid:-2376} # userId:groupid(docker-group-id)
+    # `groupmod -g 2376 docker` systemctl restart docker.socket
+    # `systemctl edit --full docker.socket`//SocketUser=1000
+    user: 1000:${dockergid:-1000} # change docker.socket 
     tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
