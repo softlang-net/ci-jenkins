@@ -82,3 +82,19 @@ if (env3) {
         `docker exec -i -w $work_dir ${ci_container_git} bash -c "$cmd_image_build"`,
         `docker exec -i ${ci_container_git} bash -c "$cmd_image_push"`)
 }
+
+// 📌 deploy service to swarm & running
+env = {
+    DOCKER_CONTEXT: ci_docker_context_deploy,
+    cmd_image_build: `docker build --force-rm --compress` +
+        ` --build-arg ci_env_profile=${ci_env_profile}` +
+        ` --build-arg ci_router_prefix=${ci_router_prefix}` +
+        ` -t ${ci_compose_image} -f ${ci_dockerfile} .`,
+    cmd_image_push: `docker push ${ci_compose_image}`
+}
+printLog(JSON.stringify(env))
+if (env3) {
+    exec("📌 build docker image && push to registry", env,
+        `docker exec -i -w $work_dir ${ci_container_git} bash -c "$cmd_image_build"`,
+        `docker exec -i ${ci_container_git} bash -c "$cmd_image_push"`)
+}

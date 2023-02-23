@@ -1,5 +1,4 @@
 const { spawnSync } = require('node:child_process');
-const { exit } = require('node:process');
 const fs = require('fs');
 
 /** load environment files
@@ -64,7 +63,7 @@ function exec(task, env, ...commands) {
     const cmdSpawn = spawnSync('sh', ['-c', cmd], { stdio: 'inherit', env: env });
     if (cmdSpawn.status != 0) {
       console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
-      exit(cmdSpawn.status);
+      process.exit(cmdSpawn.status);
     } else {
       printLog('√done')
     }
