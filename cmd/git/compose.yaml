@@ -16,7 +16,7 @@ services:
     working_dir: /opt/make/workspace
     # grep docker /etc/group 
     # `groupmod -g 2377 docker` systemctl restart docker.socket 
-    user: 1000:${dockergid:-1000} # userId:groupid(docker-group-id)
+    user: 1000:${dockergid:-2377} # userId:groupid(docker-group-id)
     tty: true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
