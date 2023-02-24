@@ -1,6 +1,6 @@
 #!/usr/bin/node
 // mock>> ./deploy.js deploy.env 0
-const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('./deploy.jsp.js');
+const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('../shared/cigo.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
 if (env2) {
