@@ -77,7 +77,7 @@ function exec(task, env, ...commands) {
  * @returns {(string|boolean)} the servicd_id or false if service not exist. 
  */
 function getServiceId(docker_context, service_name) {
-  let env = { DOCKER_CONTEXT: docker_ctx }
+  let env = { DOCKER_CONTEXT: docker_context }
   let cmd = `docker service inspect --format service_id={{.ID}} '${service_name}'`;
   let cmdSpawn = spawnSync('sh', ['-c', cmd], { env: env });
   printLog(`service <${service_name}>, docker context=${docker_ctx} / cli=${docker_cli}, return=${cmdSpawn.status}`);
