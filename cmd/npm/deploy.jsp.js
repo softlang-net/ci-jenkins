@@ -89,6 +89,65 @@ function getServiceId(docker_context, service_name) {
   }
 }
 
+/**
+ * @param {string} service_name The service name
+ * @param {string} image_name The docker image name
+ * @param {string} servicePort The service Port, default=80
+ * @param {string} routeEntry The traefik name
+ * @param {string} routePathPrefix The router PathPrefix
+ * @param {string} res_cpu The router PathPrefix
+ * @param {string} res_memory The router PathPrefix
+ * @param {string} res_replicas The router PathPrefix
+ * @returns {string} the cli-command for update service
+ */
+function cmdUpdateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas) {
+  return `docker service update -d`
+    + ` --label-add "cigo=softlang"`
+    + ` --label-add "io.portainer.accesscontrol.public"`
+    + ` --label-add "traefik.http.routers.${service_name}.entrypoints=${routeEntry}"`
+    + ` --label-add "traefik.http.routers.${service_name}.service=${service_name}"`
+    + ` --label-add "traefik.http.routers.${service_name}.rule=PathPrefix(\`${routePathPrefix}\`)"`
+    + ` --label-add "traefik.http.services.${service_name}.loadbalancer.server.port=${servicePort}"`
+    + ` --limit-cpu ${res_cpu}`
+    + ` --limit-memory ${res_memory}`
+    + ` --replicas ${res_replicas}`
+    + ` --image ${image_name} ${service_name}`
+}
+
+/**
+* @param {string} service_name The service name
+* @param {string} image_name The docker image name
+* @param {string} servicePort The service Port, default=80
+* @param {string} routeEntry The traefik name
+* @param {string} routePathPrefix The router PathPrefix
+* @param {string} res_cpu The router PathPrefix
+* @param {string} res_memory The router PathPrefix
+* @param {string} res_replicas The router PathPrefix
+* @param {string} overlay_network The swarm-overlay network
+* @returns {string} the cli-command for update service
+*/
+function cmdCreateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas, overlay_network) {
+  return `docker service create -d --mode replicated`
+    + ` --network ${overlay_network}`
+    + ` --update-parallelism 1`
+    + ` --update-delay 30s`
+    + ` --restart-delay 30s`
+    + ` --restart-window 0`
+    + ` --restart-max-attempts 10`
+    + ` --name ${service_name}`
+    + ` --limit-cpu ${res_cpu}`
+    + ` --limit-memory ${res_memory}`
+    + ` --replicas ${res_replicas}`
+    + ` --label "cigo=softlang"`
+    + ` --label "traefik.enable=true"`
+    + ` --label "io.portainer.accesscontrol.public"`
+    + ` --label "traefik.http.routers.${service_name}.entrypoints=${routeEntry}"`
+    + ` --label "traefik.http.routers.${service_name}.service=${service_name}"`
+    + ` --label "traefik.http.routers.${service_name}.rule=PathPrefix(\`${routePathPrefix}\`)"`
+    + ` --label "traefik.http.services.${service_name}.loadbalancer.server.port=${servicePort}"`
+    + ` ${image_name}`;
+}
+
 module.exports = {
-  exec, getServiceId, getEnv, hasEnv, printLog, getNow, loadDeployEnv
+  exec, getServiceId, cmdCreateService, cmdUpdateService, getEnv, hasEnv, printLog, getNow, loadDeployEnv
 };

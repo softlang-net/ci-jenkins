@@ -1,6 +1,6 @@
 #!node
 // mock>> ./deploy.js deploy.env 0
-const { exec, getEnv, printLog, loadDeployEnv, getServiceId } = require('./deploy.jsp.js');
+const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('./deploy.jsp.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
 if (env2) {
@@ -47,7 +47,7 @@ let env = {
     cmd1: `rm -rf ${ci_work_dir} && mkdir -p ${ci_work_dir}`,
     cmd2: `git clone -b ${ci_git_branch} ${ci_git_project} ${ci_work_dir}/src`
 }
-printLog(JSON.stringify(env))
+printLog(JSON.stringify(env, null, 2))
 if (env3) {
     exec("📌 workspace: git clone source-code", env,
         `docker exec -i ${ci_container_git} bash -c "$cmd1"`,
@@ -60,7 +60,7 @@ env = {
     work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
     cmd_compiler: `npm install --registry https://registry.npmmirror.com/ --quiet && npm run ${ci_npm_run_script} --quiet`
 }
-printLog(JSON.stringify(env))
+printLog(JSON.stringify(env, null, 2))
 if (env3) {
     exec("📌 compiler: npm install && build", env,
         `docker exec -i -w $work_dir ${ci_container_compiler} bash -c "$cmd_compiler"`)
@@ -76,7 +76,7 @@ env = {
         ` -t ${ci_compose_image} -f ${ci_dockerfile} .`,
     cmd_image_push: `docker push ${ci_compose_image}`
 }
-printLog(JSON.stringify(env))
+printLog(JSON.stringify(env, null, 2))
 if (env3) {
     exec("📌 build docker image && push to registry", env,
         `docker exec -i -w $work_dir ${ci_container_git} bash -c "$cmd_image_build"`,
@@ -84,45 +84,19 @@ if (env3) {
 }
 
 // 📌 deploy service to swarm & running
-/**
- * @param {string} service_name The service name
- * @param {string} image_name The docker image name
- * @param {string} servicePort The service Port, default=80
- * @param {string} routeEntry The traefik name
- * @param {string} routePathPrefix The router PathPrefix
- * @param {string} res_cpu The router PathPrefix
- * @param {string} res_memory The router PathPrefix
- * @param {string} res_replicas The router PathPrefix
- * @returns {string} the cli-command for update service
- */
-function cmdUpdateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas) {
-    return `docker service update -d`
-        + ` --label-add "cigo=softlang"`
-        + ` --label-add "io.portainer.accesscontrol.public"`
-        + ` --label-add "traefik.http.routers.${service_name}.entrypoints=${routeEntry}"`
-        + ` --label-add "traefik.http.routers.${service_name}.service=${service_name}"`
-        + ` --label-add "traefik.http.routers.${service_name}.rule=PathPrefix(\`${routePathPrefix}\`)"`
-        + ` --label-add "traefik.http.services.${service_name}.loadbalancer.server.port=${servicePort}"`
-        + ` --limit-cpu ${res_cpu}`
-        + ` --limit-memory ${res_memory}`
-        + ` --replicas ${res_replicas}`
-        + ` --image ${image_name} ${service_name}`
+env = {
+    DOCKER_CONTEXT: ci_docker_context_deploy,
+    commandCreate: cmdCreateService(ci_compose_service_name, ci_compose_image, ci_compose_service_port,
+        ci_router_entry, ci_router_prefix, ci_compose_cpus, ci_compose_memory, ci_compose_replicas, ci_compose_network),
+    commandUpdate: cmdUpdateService(ci_compose_service_name, ci_compose_image, ci_compose_service_port,
+        ci_router_entry, ci_router_prefix, ci_compose_cpus, ci_compose_memory, ci_compose_replicas)
 }
-
-function cmdCreateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas) {
-
-}
-
+printLog(JSON.stringify(env, null, 2))
 if (env3) {
     let service_id = getServiceId(ci_docker_context_deploy, ci_compose_service_name)
-    if (service_id !== false) {
-        // create service
-        env = {
-            DOCKER_CONTEXT: ci_docker_context_deploy,
-            command: ``
-        }
-    }
-    else {
-        // update service
+    if (service_id === false) {
+        exec('📌 deploy service to swarm --Create', env, '$commandCreate')
+    } else {
+        exec('📌 deploy service to swarm --Update', env, '$commandUpdate')
     }
 }
