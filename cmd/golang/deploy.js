@@ -1,5 +1,5 @@
 #!/usr/bin/node
-// mock>> ./deploy.js config.env 0
+// mock>> ./deploy.js deploy.env 0
 const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('../shared/cigo.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
@@ -38,9 +38,8 @@ const
     ci_work_dir = `${ci_workspace}/` + getEnv('JOB_NAME', `${ci_env_profile}/${ci_compose_service_name}`);
 
 /** --------- start business coding -------- */
-// { DOCKER_CONTEXT: context, cmd: 'the data' }
+// { DOCKER_CONTEXT: context, cmd: 'cli-command' }
 //exec("📌 print environments", process.env, 'pwd', 'env')
-
 // 📌 workspace: git clone source-code
 let env = {
     DOCKER_CONTEXT: ci_docker_context_build,
@@ -54,19 +53,7 @@ if (env3) {
         `docker exec -i ${ci_container_git} bash -c "$cmd2"`)
 }
 
-// 📌 compiler: npm install && build
-env = {
-    DOCKER_CONTEXT: ci_docker_context_build,
-    work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
-    cmd_compiler: `npm install --registry https://registry.npmmirror.com/ --quiet && npm run ${ci_npm_run_script} --quiet`
-}
-printLog(JSON.stringify(env, null, 2))
-if (env3) {
-    exec("📌 compiler: npm install && build", env,
-        `docker exec -i -w $work_dir ${ci_container_compiler} bash -c "$cmd_compiler"`)
-}
-
-// 📌 build docker image && push to registry
+// 📌 compiler & build image from Dockerfile (golang->/app/launch)
 env = {
     DOCKER_CONTEXT: ci_docker_context_build,
     work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
@@ -78,7 +65,7 @@ env = {
 }
 printLog(JSON.stringify(env, null, 2))
 if (env3) {
-    exec("📌 build docker image && push to registry", env,
+    exec("compiler & build image from Dockerfile (golang->/app/launch)", env,
         `docker exec -i -w $work_dir ${ci_container_git} bash -c "$cmd_image_build"`,
         `docker exec -i ${ci_container_git} bash -c "$cmd_image_push"`)
 }
