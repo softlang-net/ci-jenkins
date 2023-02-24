@@ -65,7 +65,7 @@ function exec(task, env, ...commands) {
       console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
       process.exit(cmdSpawn.status);
     } else {
-      printLog('√done')
+      printLog('√done\n')
     }
   }
   console.log(`🔵 ${getNow()} done! ${task}\n`)

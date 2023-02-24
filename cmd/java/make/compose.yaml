@@ -1,22 +1,24 @@
-# docker compose -p golang-compiler -f compose.yaml up --build --remove-orphans -d
-# docker compose -p golang-compiler down
+# docker compose -p java-compiler -f compose.yaml up --build --remove-orphans -d
+# docker compose -p java-compiler down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
-# for custom image
 version: "3.8"
 
 services:
-  golang-compiler:
+  java-compiler:
     image: golang:1.17-alpine
     build:
       context: .
       dockerfile: Dockerfile
-    hostname: golang-compiler
-    container_name: golang-compiler
+    hostname: java-compiler
+    container_name: java-compiler
     working_dir: /opt/make/workspace
+    command: /bin/bash
     tty: true
+    user: dev
     volumes:
       - /opt/make/workspace:/opt/make/workspace
+      #- ./zyb_settings.xml:/home/dev/m2_settings.xml
     environment:
       TZ: "Asia/Shanghai"
     network_mode: host
@@ -25,4 +27,5 @@ services:
       resources:
         limits:
           cpus: "${cpus:-1}"
-          memory: ${memory:-1024M}
+          memory: ${memory:-2048M}
+
