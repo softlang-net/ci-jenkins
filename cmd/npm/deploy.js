@@ -1,4 +1,4 @@
-#!node
+#!/usr/bin/node
 // mock>> ./deploy.js deploy.env 0
 const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('./deploy.jsp.js');
 let env2 = process.argv[2]
