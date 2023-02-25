@@ -1,4 +1,4 @@
-# docker compose -p java-compiler -f compose.yaml up --build --remove-orphans -d
+# docker compose -p java-compiler -f compose.yaml up -d --remove-orphans --build
 # docker compose -p java-compiler down
 # https://docs.docker.com/compose/compose-file/compose-file-v3/
 # rollback_config, restart_policy
