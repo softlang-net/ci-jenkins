@@ -4,19 +4,22 @@ ENV TZ "Asia/Shanghai"
 WORKDIR /web
 #ENV BUILD_PATH='./dist', default: vue=dist, react=build (config by ENV.BUILD_PATH)
 COPY ./dist   /web
+#-----
+ARG ci_env
+ARG ci_app_port
+ARG ci_app_prefix
+#-----
+ENV app_env=${ci_env:-"dev"}
+ENV app_prefix=${ci_app_prefix:-"/ui-debug"}
+ENV app_port=${ci_app_port:-"80"}
 
-ARG ci_env_profile
-ARG ci_router_prefix
-ENV app_env=${ci_env_profile:-"dev"}
-ENV app_path=${ci_router_prefix:-"/ui-debug"}
-
-#RUN ln -s /web /usr/share/nginx/html/${app_path}
+#RUN ln -s /web /usr/share/nginx/html/${app_prefix}
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
-    listen 80;
+    listen ${app_port};
     server_name _;
     root /usr/share/nginx/html;
-    location ${app_path} {
+    location ${app_prefix} {
         alias /web/;
         expires \$expires;
     }
@@ -32,4 +35,5 @@ map \$sent_http_content_type \$expires {
 }
 EOF
 
+#HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=300s CMD wget -cSq --spider 127.0.0.1${app_path}/healthcheck || exit 1
 CMD ["nginx", "-g", "daemon off;"]

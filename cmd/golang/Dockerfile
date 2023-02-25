@@ -1,11 +1,4 @@
 FROM docker.io/library/golang:1.17-alpine as build
-
-# config
-ARG ci_env_profile
-ARG ci_router_prefix
-ENV app_env=${ci_env_profile:-"dev"}
-ENV app_path=${ci_router_prefix:-"/ui-debug"}
-
 WORKDIR /app
 ADD . .
 
@@ -20,8 +13,17 @@ RUN go build -o /app/launch
 #FROM docker.io/library/scratch
 #FROM docker.io/library/busybox
 FROM docker.io/library/alpine
+ENV TZ "Asia/Shanghai"
+# config
+ARG ci_env
+ARG ci_app_port
+ARG ci_app_prefix
+ENV app_env=${ci_env:-"dev"}
+ENV app_prefix=${ci_app_prefix:-"/api-debug"}
+ENV app_port=${ci_app_port:-"80"}
 
 WORKDIR /app
 COPY --from=build /app/launch /app/launch
 
+#HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=300s CMD wget -cSq --spider 127.0.0.1${app_path}/healthcheck || exit 1
 CMD [ "/app/launch" ]

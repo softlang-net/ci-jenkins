@@ -9,33 +9,33 @@ if (env2) {
 }
 
 const
-    ci_env_profile = getEnv('ci_env_profile', 'dev'),
-    ci_npm_run_script = getEnv('ci_npm_run_script', 'build'),
-    ci_env_image_tag = getEnv('ci_env_image_tag', getEnv('BUILD_NUMBER', 'latest')),
-    ci_env_registry = getEnv('ci_env_registry', 'image.ci:5000'),
+    ci_env = getEnv('ci_env', 'dev'),
+    ci_npm_script = getEnv('ci_npm_script', 'build'),
+    ci_image_tag = getEnv('ci_image_tag', getEnv('BUILD_NUMBER', 'latest')),
+    ci_image_registry = getEnv('ci_image_registry', 'image.ci:5000'),
     ci_docker_context_deploy = getEnv('ci_docker_context_deploy', 'default'),
     ci_docker_context_build = getEnv('ci_docker_context_build', 'default'),
     ci_container_git = getEnv('ci_container_git', 'git-docker-cli'),
     ci_container_compiler = getEnv('ci_container_compiler', 'node-complier'),
     //runtime resource config
-    ci_compose_cpus = getEnv('ci_compose_cpus', '1'),
-    ci_compose_memory = getEnv('ci_compose_memory', '512M'),
-    ci_compose_replicas = getEnv('ci_compose_replicas', '1'),
-    ci_compose_service_name = getEnv('ci_compose_service_name', getEnv('JOB_BASE_NAME', 'api-debug')), //${JOB_BASE_NAME}@Jenkins
-    ci_compose_service_port = getEnv('ci_compose_service_port', '80'),
-    ci_compose_network = getEnv('ci_compose_network'),
-    ci_router_entry = getEnv('ci_router_entry', 'traefik'),
-    ci_router_prefix = getEnv('ci_router_prefix', getEnv('ci_compose_service')),
+    ci_app_cpus = getEnv('ci_app_cpus', '1'),
+    ci_app_memory = getEnv('ci_app_memory', '512M'),
+    ci_app_replicas = getEnv('ci_app_replicas', '1'),
+    ci_app_name = getEnv('ci_app_name', getEnv('JOB_BASE_NAME', 'api-debug')), //${JOB_BASE_NAME}@Jenkins
+    ci_app_port = getEnv('ci_app_port', '80'),
+    ci_app_network = getEnv('ci_app_network'),
+    ci_app_entry = getEnv('ci_app_entry', 'traefik'),
+    ci_app_prefix = getEnv('ci_app_prefix', `/${ci_app_name}`),
     // compiler config
     ci_dockerfile = getEnv('ci_dockerfile', '/opt/make/compilers/npm/Dockerfile'),
     ci_workspace = getEnv('ci_workspace', '/opt/make/workspace'),
     ci_git_project = getEnv('ci_git_project'),
-    ci_git_branch = getEnv('ci_git_branch', getEnv('ci_env_profile')),
+    ci_git_branch = getEnv('ci_git_branch', getEnv('ci_env')),
     ci_git_src_dir = getEnv('ci_git_src_dir', ''),
     // env_profile
-    ci_compose_image = `${ci_env_registry}/${ci_env_profile}/${ci_compose_service_name}:${ci_env_image_tag}`,
+    ci_image_name = `${ci_image_registry}/${ci_env}/${ci_app_name}:${ci_image_tag}`,
     // work_dir for source code & compiler, ${JOB_NAME}@Jenkins
-    ci_work_dir = `${ci_workspace}/` + getEnv('JOB_NAME', `${ci_env_profile}/${ci_compose_service_name}`);
+    ci_work_dir = `${ci_workspace}/` + getEnv('JOB_NAME', `${ci_env}/${ci_app_name}`);
 
 /** --------- start business coding -------- */
 // { DOCKER_CONTEXT: context, cmd: 'the data' }
@@ -58,7 +58,7 @@ if (env3) {
 env = {
     DOCKER_CONTEXT: ci_docker_context_build,
     work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
-    cmd_compiler: `npm install --registry https://registry.npmmirror.com/ --quiet && npm run ${ci_npm_run_script} --quiet`
+    cmd_compiler: `npm install --registry https://registry.npmmirror.com/ --quiet && npm run ${ci_npm_script} --quiet`
 }
 printLog(JSON.stringify(env, null, 2))
 if (env3) {
@@ -71,10 +71,10 @@ env = {
     DOCKER_CONTEXT: ci_docker_context_build,
     work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
     cmd_image_build: `docker build --force-rm --compress` +
-        ` --build-arg ci_env_profile=${ci_env_profile}` +
-        ` --build-arg ci_router_prefix=${ci_router_prefix}` +
-        ` -t ${ci_compose_image} -f ${ci_dockerfile} .`,
-    cmd_image_push: `docker push ${ci_compose_image}`
+        ` --build-arg ci_env=${ci_env}` +
+        ` --build-arg ci_app_prefix=${ci_app_prefix}` +
+        ` -t ${ci_image_name} -f ${ci_dockerfile} .`,
+    cmd_image_push: `docker push ${ci_image_name}`
 }
 printLog(JSON.stringify(env, null, 2))
 if (env3) {
@@ -86,14 +86,14 @@ if (env3) {
 // 📌 deploy service to swarm & running
 env = {
     DOCKER_CONTEXT: ci_docker_context_deploy,
-    commandCreate: cmdCreateService(ci_compose_service_name, ci_compose_image, ci_compose_service_port,
-        ci_router_entry, ci_router_prefix, ci_compose_cpus, ci_compose_memory, ci_compose_replicas, ci_compose_network),
-    commandUpdate: cmdUpdateService(ci_compose_service_name, ci_compose_image, ci_compose_service_port,
-        ci_router_entry, ci_router_prefix, ci_compose_cpus, ci_compose_memory, ci_compose_replicas)
+    commandCreate: cmdCreateService(ci_app_name, ci_image_name, ci_app_port,
+        ci_app_entry, ci_app_prefix, ci_app_cpus, ci_app_memory, ci_app_replicas, ci_app_network),
+    commandUpdate: cmdUpdateService(ci_app_name, ci_image_name, ci_app_port,
+        ci_app_entry, ci_app_prefix, ci_app_cpus, ci_app_memory, ci_app_replicas)
 }
 printLog(JSON.stringify(env, null, 2))
 if (env3) {
-    let service_id = getServiceId(ci_docker_context_deploy, ci_compose_service_name)
+    let service_id = getServiceId(ci_docker_context_deploy, ci_app_name)
     if (service_id === false) {
         exec('📌 deploy service to swarm --Create', env, '$commandCreate')
     } else {
