@@ -1,6 +1,6 @@
 #!/usr/bin/node
 // mock>> ./deploy.js deploy.env 0
-const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('../shared/cigo.js');
+const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService, concatPath } = require('../shared/cigo.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
 if (env2) {
@@ -23,16 +23,16 @@ const
     ci_app_port = getEnv('ci_app_port', '80'),
     ci_app_network = getEnv('ci_app_network'),
     ci_app_entry = getEnv('ci_app_entry', 'traefik'),
-    ci_app_prefix = getEnv('ci_app_prefix', ci_app_name),
+    ci_app_prefix = getEnv('ci_app_prefix', `/${ci_app_name}`),
     // compiler config
-    ci_dockerfile = getEnv('ci_dockerfile', '/opt/make/compilers/npm/Dockerfile'),
+    ci_dockerfile = getEnv('ci_dockerfile', '/opt/make/compilers/golang/Dockerfile'),
     ci_workspace = getEnv('ci_workspace', '/opt/make/workspace'),
     ci_git_project = getEnv('ci_git_project'),
-    ci_git_branch = getEnv('ci_git_branch', getEnv('ci_env')),
+    ci_git_branch = getEnv('ci_git_branch', ci_env),
     ci_git_src_dir = getEnv('ci_git_src_dir', ''),
     ci_image_name = `${ci_image_registry}/${ci_env}/${ci_app_name}:${ci_image_tag}`,
     // work_dir for source code & compiler, ${JOB_NAME}@Jenkins
-    ci_work_dir = `${ci_workspace}/` + getEnv('JOB_NAME', `${ci_env}/${ci_app_name}`);
+    ci_work_dir = concatPath(`${ci_workspace}`, getEnv('JOB_NAME', `${ci_env}/${ci_app_name}`));
 
 /** --------- start business coding -------- */
 // { DOCKER_CONTEXT: context, cmd: 'cli-command' }

@@ -1,4 +1,5 @@
 const { spawnSync } = require('node:child_process');
+const _path = require('path')
 const fs = require('fs');
 
 /** load environment files
@@ -10,6 +11,14 @@ function loadDeployEnv(envFilePath) {
       let ix1 = item1.indexOf('=')
       process.env[item1.substring(0, ix1)] = item1.substring(ix1 + 1)
     })
+}
+
+/** load environment files
+ * @param {string} paths the paths array to join
+ * @returns {string} the concated path
+ */
+function concatPath(...paths) {
+  return _path.join(...paths)
 }
 
 /**
@@ -149,5 +158,5 @@ function cmdCreateService(service_name, image_name, servicePort, routeEntry, rou
 }
 
 module.exports = {
-  exec, getServiceId, cmdCreateService, cmdUpdateService, getEnv, hasEnv, printLog, getNow, loadDeployEnv
+  exec, concatPath, getServiceId, cmdCreateService, cmdUpdateService, getEnv, hasEnv, printLog, getNow, loadDeployEnv
 };

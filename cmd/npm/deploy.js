@@ -1,6 +1,6 @@
 #!/usr/bin/node
 // mock>> ./deploy.js config.env 0
-const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService } = require('../shared/cigo.js');
+const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService, concatPath } = require('../shared/cigo.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
 if (env2) {
@@ -35,7 +35,7 @@ const
     // env_profile
     ci_image_name = `${ci_image_registry}/${ci_env}/${ci_app_name}:${ci_image_tag}`,
     // work_dir for source code & compiler, ${JOB_NAME}@Jenkins
-    ci_work_dir = `${ci_workspace}/` + getEnv('JOB_NAME', `${ci_env}/${ci_app_name}`);
+    ci_work_dir = concatPath(`${ci_workspace}`, getEnv('JOB_NAME', `${ci_env}/${ci_app_name}`));
 
 /** --------- start business coding -------- */
 // { DOCKER_CONTEXT: context, cmd: 'the data' }
@@ -72,6 +72,7 @@ env = {
     work_dir: `${ci_work_dir}/src/${ci_git_src_dir}`,
     cmd_image_build: `docker build --force-rm --compress` +
         ` --build-arg ci_env=${ci_env}` +
+        ` --build-arg ci_app_port=${ci_app_port}` +
         ` --build-arg ci_app_prefix=${ci_app_prefix}` +
         ` -t ${ci_image_name} -f ${ci_dockerfile} .`,
     cmd_image_push: `docker push ${ci_image_name}`

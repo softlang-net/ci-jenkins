@@ -4,7 +4,7 @@ ENV TZ "Asia/Shanghai"
 WORKDIR /web
 #ENV BUILD_PATH='./dist', default: vue=dist, react=build (config by ENV.BUILD_PATH)
 COPY ./dist   /web
-#-----
+#-- define this to get args from docker build-arg
 ARG ci_env
 ARG ci_app_port
 ARG ci_app_prefix
