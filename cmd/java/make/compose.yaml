@@ -6,7 +6,7 @@ version: "3.8"
 
 services:
   java-compiler:
-    image: golang:1.17-alpine
+    image: cicd/local/maven3-openjdk8:latest
     build:
       context: .
       dockerfile: Dockerfile
