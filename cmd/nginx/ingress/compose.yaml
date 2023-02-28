@@ -1,0 +1,31 @@
+# docker pull softlang/nginx:v1.20
+# docker stack deploy -c compose.yaml ingress
+version: '3.7'
+networks:
+  default:
+    external: true
+    name: netdev
+      
+services:
+  ngx-entry:
+    image: softlang/nginx:v1.20
+    ports:
+      - mode: host
+        target: 80
+        published: 8000
+    environment:
+      - TZ=Asia/Shanghai
+    volumes:
+      - ./conf.d:/etc/nginx/conf.d
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+        delay: 15s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
