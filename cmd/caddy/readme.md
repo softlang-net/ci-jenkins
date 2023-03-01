@@ -63,7 +63,7 @@
 ```
 
 - v2ray client (pc/android)
-> 
+> brew install v2rayu (on mac)
 
 ```json
 {
