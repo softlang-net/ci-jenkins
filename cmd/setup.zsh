@@ -1,22 +1,24 @@
 #!/bin/bash
 set -e
 
-cat <<EOF > ./.test.log
-hello chatGPT
-1. design
-2. category the content
-done
+cat <<EOF 
+install devops list:
+1. deploy-npm
+2. deploy-golang
+3. deploy-node
+4. deploy-java
+5. deploy-python
 EOF
+
+while read line; do
+  echo "reading: ${line}" && break
+done < /dev/stdin
+
+echo "You chose is ${line}"
 
 cat <<EOF
-the log line1
-the log line2
-the log line3
+deploy the compilers
+1. git-docker-cli
+2. node-compiler
 EOF
 echo "finish"
-image_bash_c="docker build --force-rm --compress
-    --build-arg ci_env_profile=${TZ}
-    --build-arg ci_router_prefix=ssss
-    -t 'afsdfadsf' -f 1234 ."
-
-echo $image_bash_c
