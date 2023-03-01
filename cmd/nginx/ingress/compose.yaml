@@ -15,8 +15,8 @@ services:
         published: 8000
     environment:
       - TZ=Asia/Shanghai
-    volumes:
-      - ./conf.d:/etc/nginx/conf.d
+    #volumes:
+    #  - ./conf.d:/etc/nginx/conf.d
     deploy:
       mode: global
       placement:
