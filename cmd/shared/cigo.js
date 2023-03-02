@@ -6,11 +6,15 @@ const fs = require('fs');
  * @param {string} envFilePath the filepath ./deploy.env
  */
 function loadDeployEnv(envFilePath) {
-  fs.readFileSync(envFilePath, { encoding: 'utf8', flag: 'r' }).
-    split('\n').filter((s1) => { return s1 }).map(item1 => {
-      let ix1 = item1.indexOf('=')
-      process.env[item1.substring(0, ix1)] = item1.substring(ix1 + 1)
-    })
+  if (fs.existsSync(envFilePath)) {
+    fs.readFileSync(envFilePath, { encoding: 'utf8', flag: 'r' }).
+      split('\n').filter((s1) => { return s1 }).map(item1 => {
+        let ix1 = item1.indexOf('=')
+        process.env[item1.substring(0, ix1)] = item1.substring(ix1 + 1)
+      })
+  } else {
+    printLog(`Load env [${envFilePath}] failed`)
+  }
 }
 
 /** load environment files
