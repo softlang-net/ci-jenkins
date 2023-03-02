@@ -1,0 +1,43 @@
+# docker compose -p host-registry -f compose.yaml up -d
+# docker compose -p host-registry down
+version: '3.7'
+networks:
+  default:
+    name: "app"
+    external: true
+
+services:
+  image-ci-registry:
+    image: registry:2.8.1
+    hostname: image.ci.registry
+    container_name: image.ci.registry
+    restart: always
+    volumes:
+      - ./image.d/data:/var/lib/registry
+      - ./conf_image.yml:/etc/docker/registry/config.yml
+    ports:
+      - "5000:5000"
+    environment:
+      TZ: Asia/Shanghai
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
+  proxy-io-registry:
+    image: registry:2.8.1
+    hostname: proxy.io.registry
+    container_name: proxy.io.registry
+    restart: always
+    volumes:
+      - ./proxy.d/data:/var/lib/registry
+      - ./conf_proxy.yml:/etc/docker/registry/config.yml
+    ports:
+      - "5050:5000"
+    environment:
+      TZ: Asia/Shanghai
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M

@@ -1,0 +1,10 @@
+!!org.panda_lang.reposilite.auth.TokenCollection
+"tokens":
+- "alias": "dev"
+  "path": "/"
+  "permissions": "w"
+  "token": "xxxx, reposilite-cli `help keygen`"
+- "alias": "root"
+  "path": "/"
+  "permissions": "m"
+  "token": "xxxx, reposilite-cli `help keygen`"

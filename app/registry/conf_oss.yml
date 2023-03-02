@@ -1,0 +1,30 @@
+# /etc/docker/registry/config.yml
+version: 0.1
+log:
+  fields:
+    service: registry
+storage:
+  cache:
+    blobdescriptor: inmemory
+  oss:
+    region: oss-cn-shanghai
+    accesskeyid: oss_keyId
+    accesskeysecret: oss_secret
+    endpoint: my_bucket.oss-cn-shanghai-internal.aliyuncs.com
+    bucket: my_bucket
+    rootdirectory: /ci2-registry/
+    internal: true
+    secure: true
+    #encrypt: false
+    #chunksize: 5242880
+    #encryptionkeyid: optional KMS key id for encryption
+    #chunksize: optional size valye,default=10MB (type=integer, unit=byte)
+http:
+  addr: :5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+health:
+  storagedriver:
+    enabled: true
+    interval: 20s
+    threshold: 3

@@ -1,0 +1,50 @@
+storage: /verdaccio/storage
+web:
+  enable: true
+  title: VerdaccioV5
+  primary_color: red
+  gravatar: false
+  sort_packages: desc
+
+## htpasswd -b htpasswd newuser password
+## htpasswd -bB htpasswd newuser password
+auth:
+  htpasswd:
+    file: /verdaccio/conf/htpasswd
+    max_users: 200
+
+security:
+  api:
+    jwt:
+      sign:
+        expiresIn: 60d
+        notBefore: 1
+  web:
+    sign:
+      expiresIn: 7d
+
+uplinks:
+  npmjs:
+    cache: true
+    url: https://registry.npmmirror.com
+
+# https://verdaccio.org/docs/packages
+# $anonymous, $authenticated, $all
+packages:
+  '@softlang/*':
+     access: $all
+     publish: $authenticated
+  '**':
+    access: $all
+    publish: $all
+    proxy: npmjs
+
+log: { type: stdout, format: pretty, level: http }
+
+server:
+  keepAliveTimeout: 600
+
+# 1000 requests / 5 seconds
+#userRateLimit:
+#  windowMs: 1000
+#  max: 1000

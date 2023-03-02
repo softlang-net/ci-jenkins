@@ -1,0 +1,23 @@
+# docker-compose -p host-npm -f compose.yaml up -d
+# docker-compose -p host-npm down
+version: "3.8"
+services:
+  npm-registry4dev:
+    image: softlang/npm-registry:verdaccio-5.6.2
+    hostname: npm-registry.dev
+    container_name: npm-registry.dev
+    volumes:
+      - ./storage:/verdaccio/storage
+      - ./conf:/verdaccio/conf
+    environment:
+      TZ: "Asia/Shanghai"
+      VERDACCIO_PORT: 4873
+    #healthcheck:
+      #test: ["CMD", "wget", "--spider", "127.0.0.1:4873/health"]
+    network_mode: host
+    restart: always
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 256M
