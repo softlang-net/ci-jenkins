@@ -1,0 +1,53 @@
+# docker stack deploy --prune -c compose.yaml cc-gateway
+# docker network create -d overlay --attachable --subnet 192.197.0.1/16 netdev
+version: "3.7"
+
+networks:
+  default:
+    name: "netdev"
+    external: true
+
+services:
+  traefik:
+    image: softlang/traefik:v2.5.7 
+    #image: "traefik:v2.5.7"
+    environment:
+      TZ: Asia/Shanghai
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker.swarmMode=true"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.docker.swarmModeRefreshSeconds=15s"
+      - "--providers.docker.network=netdev"
+      - "--entrypoints.dev.address=:8089"
+      - "--entrypoints.dev=true"
+      - "--api.dashboard=true" # dashboard.port=8080
+      # save metrics to influxdb, show by grafana
+      - "--metrics.influxdb=true"
+      - "--metrics.influxdb.protocol=http"
+      - "--metrics.influxdb.address=http://agent-ingress:8086"
+      - "--metrics.influxdb.database=sl-pods-traefik"
+      - "--metrics.influxdb.username=app"
+      - "--metrics.influxdb.password=app99I"
+      - "--metrics.influxdb.pushInterval=10s"
+    ports:
+      - mode: host 
+        target: 8080
+        published: 8088
+      - mode: host 
+        target: 8089
+        published: 8089
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role == manager
+      update_config:
+        parallelism: 1
+        delay: 20s # 20s > swarmModeRefreshSeconds=15s
+      resources:
+        limits:
+          cpus: '1'
+          memory: 128M
