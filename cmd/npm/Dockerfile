@@ -7,19 +7,19 @@ COPY ./dist   /web
 #-- define this to get args from docker build-arg
 ARG ci_env
 ARG ci_app_port
-ARG ci_app_prefix
+ARG ci_app_path
 #-----
 ENV app_env=${ci_env:-"dev"}
-ENV app_prefix=${ci_app_prefix:-"/ui-debug"}
+ENV app_path=${ci_app_path:-"/ui-debug"}
 ENV app_port=${ci_app_port:-"80"}
 
-#RUN ln -s /web /usr/share/nginx/html/${app_prefix}
+#RUN ln -s /web /usr/share/nginx/html/${app_path}
 COPY <<EOF /etc/nginx/conf.d/default.conf
 server {
     listen ${app_port};
     server_name _;
     root /usr/share/nginx/html;
-    location ${app_prefix} {
+    location ${app_path} {
         alias /web/;
         expires \$expires;
     }
@@ -36,5 +36,5 @@ map \$sent_http_content_type \$expires {
 }
 EOF
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s CMD wget -cSq --spider 127.0.0.1:${app_port}/ || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s CMD wget -T 3 -qS --spider 127.0.0.1:${app_port}/ || exit 1
 CMD ["nginx", "-g", "daemon off;"]

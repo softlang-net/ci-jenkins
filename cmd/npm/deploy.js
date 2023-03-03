@@ -25,7 +25,7 @@ const
     ci_app_port = getEnv('ci_app_port', '80'),
     ci_app_network = getEnv('ci_app_network'),
     ci_app_entry = getEnv('ci_app_entry', 'traefik'),
-    ci_app_prefix = getEnv('ci_app_prefix', `/${ci_app_name}`),
+    ci_app_path = getEnv('ci_app_path', `/${ci_app_name}`),
     // compiler config
     ci_dockerfile = getEnv('ci_dockerfile', '/opt/make/compilers/npm/Dockerfile'),
     ci_workspace = getEnv('ci_workspace', '/opt/make/workspace'),
@@ -73,7 +73,7 @@ env = {
     cmd_image_build: `docker build --force-rm --compress` +
         ` --build-arg ci_env=${ci_env}` +
         ` --build-arg ci_app_port=${ci_app_port}` +
-        ` --build-arg ci_app_prefix=${ci_app_prefix}` +
+        ` --build-arg ci_app_path=${ci_app_path}` +
         ` -t ${ci_image_name} -f ${ci_dockerfile} .`,
     cmd_image_push: `docker push ${ci_image_name}`
 }
@@ -88,9 +88,9 @@ if (env3) {
 env = {
     DOCKER_CONTEXT: ci_docker_context_deploy,
     commandCreate: cmdCreateService(ci_app_name, ci_image_name, ci_app_port,
-        ci_app_entry, ci_app_prefix, ci_app_cpus, ci_app_memory, ci_app_replicas, ci_app_network),
+        ci_app_entry, ci_app_path, ci_app_cpus, ci_app_memory, ci_app_replicas, ci_app_network),
     commandUpdate: cmdUpdateService(ci_app_name, ci_image_name, ci_app_port,
-        ci_app_entry, ci_app_prefix, ci_app_cpus, ci_app_memory, ci_app_replicas)
+        ci_app_entry, ci_app_path, ci_app_cpus, ci_app_memory, ci_app_replicas)
 }
 printLog(JSON.stringify(env, null, 2))
 if (env3) {
