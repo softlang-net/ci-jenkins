@@ -1,4 +1,6 @@
 #### etcd service config
+> https://github.com/softlang-net/ci-etc-dns/tree/main/etcd
+
 
 - /etc/systemd/system/etcd.service
 > `systemctl edit --full -f etcd`
