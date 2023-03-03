@@ -35,5 +35,5 @@ map \$sent_http_content_type \$expires {
 }
 EOF
 
-#HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=300s CMD wget -cSq --spider 127.0.0.1${app_path}/healthcheck || exit 1
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s CMD wget -cSq --spider 127.0.0.1:${app_port}${app_path}/healthcheck || exit 1
 CMD ["nginx", "-g", "daemon off;"]
