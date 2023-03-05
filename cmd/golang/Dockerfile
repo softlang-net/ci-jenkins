@@ -1,12 +1,15 @@
 FROM docker.io/library/golang:1.17-alpine as build
 WORKDIR /app
-ADD . .
 
-#RUN go mod download
 ENV GO111MODULE="on"
 ENV GOPROXY="https://goproxy.cn,direct"
 ENV GOPRIVATE="ci.sdinc.cn"
-#RUN go env -w GO111MODULE=on && go env -w GOPROXY=https://goproxy.cn,direct
+
+COPY go.mod .
+COPY go.sum .
+RUN go mod download
+# do build after download (use docker cache)
+ADD . .
 RUN go build -o /app/launch
 
 #https://hub.docker.com/_/scratch
