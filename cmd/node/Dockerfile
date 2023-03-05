@@ -15,7 +15,7 @@ COPY . .
 RUN npm install --production
 RUN npm cache clean --force
 
-#ENV healthy="wget -T 3 -qS --spider 127.0.0.1:${app_port}${app_path}/healthcheck"
+#ENV healthy="wget -T 3 -qS --spider 127.0.0.1:${app_port}${app_path}/healthy"
 #HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=120s CMD $healthy || exit 1
 
 CMD [ "node", "server.js" ]

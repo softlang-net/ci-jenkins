@@ -23,7 +23,7 @@ server {
         alias /web/;
         expires \$expires;
     }
-    location = / {return 200 "ok"; }
+    location = /healthy {return 200 "ok"; }
 }
 EOF
 
@@ -36,8 +36,8 @@ map \$sent_http_content_type \$expires {
 }
 EOF
 
-#HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s CMD wget -T 3 -qS --spider 127.0.0.1:${app_port}/ || exit 1
-ENV healthy="wget -T 3 -qS --spider 127.0.0.1:${app_port}/"
+#HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s CMD wget -T 3 -qS --spider 127.0.0.1:${app_port}/healthy || exit 1
+ENV healthy="wget -T 3 -qS --spider 127.0.0.1:${app_port}/healthy"
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s CMD $healthy || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]
