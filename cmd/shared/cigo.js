@@ -84,6 +84,31 @@ function exec(task, env, ...commands) {
   console.log(`🔵 ${getNow()} done! ${task}\n`)
 }
 
+/** execute shell command on ssh-remote by spawnSync
+ * let cmd1=`set -e
+ * pwd
+ * echo 'done'
+ * `
+ * sshExec('test', 'ssh_host', cmd1)
+ * @param {string} task The task info
+ * @param {string} remote The remote server (config at ~/.ssh/config)
+ * @param {ReadonlyArray<string>} cmd_args The command args
+ */
+function sshExec(task, remote, ...commands) {
+  console.log(`✅ ${getNow()} start ${task}`)
+  for (let cmd of commands) {
+      printLog(`cmd=${cmd}`)
+      const cmdSpawn = spawnSync('ssh', [remote, cmd], { stdio: 'inherit', env: {} });
+      if (cmdSpawn.status != 0) {
+          console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
+          process.exit(cmdSpawn.status);
+      } else {
+          printLog('√done\n')
+      }
+  }
+  console.log(`🔵 ${getNow()} done! ${task}\n`)
+}
+
 /** getServiceId by service name, return false if not exist, service-id if success.
  * @param {string} docker_context The docker context
  * @param {string} service_name The service name
