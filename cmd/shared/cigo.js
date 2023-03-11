@@ -97,14 +97,14 @@ function exec(task, env, ...commands) {
 function sshExec(task, remote, ...commands) {
   console.log(`✅ ${getNow()} start ${task}`)
   for (let cmd of commands) {
-      printLog(`cmd=${cmd}`)
-      const cmdSpawn = spawnSync('ssh', [remote, cmd], { stdio: 'inherit', env: {} });
-      if (cmdSpawn.status != 0) {
-          console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
-          process.exit(cmdSpawn.status);
-      } else {
-          printLog('√done\n')
-      }
+    printLog(`cmd=${cmd}`)
+    const cmdSpawn = spawnSync('ssh', [remote, cmd], { stdio: 'inherit', env: {} });
+    if (cmdSpawn.status != 0) {
+      console.error(`🔴 ${getNow()} error! ${task}, ❎code=${cmdSpawn.status}`);
+      process.exit(cmdSpawn.status);
+    } else {
+      printLog('√done\n')
+    }
   }
   console.log(`🔵 ${getNow()} done! ${task}\n`)
 }
