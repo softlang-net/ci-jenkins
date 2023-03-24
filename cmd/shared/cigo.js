@@ -1,3 +1,4 @@
+"use strict";
 const { spawnSync } = require('node:child_process');
 const _path = require('path')
 const fs = require('fs');
@@ -136,9 +137,10 @@ function getServiceId(docker_context, service_name) {
  * @param {string} res_cpu The router PathPrefix
  * @param {string} res_memory The router PathPrefix
  * @param {string} res_replicas The router PathPrefix
+ * @param {string} max_replicas Maximum number of tasks per node (default 0 = unlimited)
  * @returns {string} the cli-command for update service
  */
-function cmdUpdateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas) {
+function cmdUpdateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas, max_replicas = 0) {
   return `docker service update -d`
     + ` --label-add "cigo=softlang"`
     + ` --label-add "io.portainer.accesscontrol.public"`
@@ -149,6 +151,7 @@ function cmdUpdateService(service_name, image_name, servicePort, routeEntry, rou
     + ` --limit-cpu ${res_cpu}`
     + ` --limit-memory ${res_memory}`
     + ` --replicas ${res_replicas}`
+    + ` --replicas-max-per-node ${max_replicas}` // default 0=unlimited
     + ` --image ${image_name} ${service_name}`
 }
 
@@ -162,9 +165,10 @@ function cmdUpdateService(service_name, image_name, servicePort, routeEntry, rou
 * @param {string} res_memory The router PathPrefix
 * @param {string} res_replicas The router PathPrefix
 * @param {string} overlay_network The swarm-overlay network
+* @param {string} max_replicas Maximum number of tasks per node (default 0 = unlimited)
 * @returns {string} the cli-command for update service
 */
-function cmdCreateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas, overlay_network) {
+function cmdCreateService(service_name, image_name, servicePort, routeEntry, routePathPrefix, res_cpu, res_memory, res_replicas, overlay_network, max_replicas = 0) {
   return `docker service create -d --mode replicated`
     + ` --network ${overlay_network}`
     + ` --update-parallelism 1`
@@ -176,6 +180,7 @@ function cmdCreateService(service_name, image_name, servicePort, routeEntry, rou
     + ` --limit-cpu ${res_cpu}`
     + ` --limit-memory ${res_memory}`
     + ` --replicas ${res_replicas}`
+    + ` --replicas-max-per-node ${max_replicas}` // default 0=unlimited
     + ` --label "cigo=softlang"`
     + ` --label "traefik.enable=true"`
     + ` --label "io.portainer.accesscontrol.public"`
@@ -186,6 +191,14 @@ function cmdCreateService(service_name, image_name, servicePort, routeEntry, rou
     + ` ${image_name}`;
 }
 
+/** deploy service to farm (update or create new)
+* @param {import('.').AppPod} pod The service name
+* @returns {string} the result
+*/
+function deployService(pod) {
+  
+}
+
 module.exports = {
-  exec, concatPath, getServiceId, cmdCreateService, cmdUpdateService, getEnv, hasEnv, printLog, getNow, loadDeployEnv
+  exec, concatPath, getServiceId, cmdCreateService, cmdUpdateService, deployService, getEnv, hasEnv, printLog, getNow, loadDeployEnv
 };
