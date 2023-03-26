@@ -1,6 +1,6 @@
 #!/usr/bin/node
 // mock>> ./deploy.js config.env 0
-const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService, concatPath } = require('../shared/cigo.js');
+const { exec, getEnv, printLog, loadDeployEnv, getServiceId, cmdCreateService, cmdUpdateService, concatPath, deployService } = require('../shared/cigo.js');
 let env2 = process.argv[2]
 let env3 = process.argv[3] != '0'
 if (env2) {
@@ -101,3 +101,5 @@ if (env3) {
         exec('📌 deploy service to swarm --Update', env, '$commandUpdate')
     }
 }
+
+deployService({ name: '', route: { app_path: '' }, git: { git_contianer: '' } })

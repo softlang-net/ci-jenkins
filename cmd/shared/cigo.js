@@ -192,11 +192,24 @@ function cmdCreateService(service_name, image_name, servicePort, routeEntry, rou
 }
 
 /** deploy service to farm (update or create new)
-* @param {import('.').AppPod} pod The service name
+* @param {import('.').ServiceBio} pod The service name
 * @returns {string} the result
 */
 function deployService(pod) {
-  
+}
+
+function getAppPod() {
+  /** @type {import('.').ServiceBio} */
+  let pod = {
+    name: '',
+    route: {
+      app_path: ''
+    },
+    git: {
+      git_contianer: ''
+    }
+  }
+  return pod;
 }
 
 module.exports = {
