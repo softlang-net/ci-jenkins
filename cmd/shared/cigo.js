@@ -192,7 +192,7 @@ function cmdCreateService(service_name, image_name, servicePort, routeEntry, rou
 }
 
 /** deploy service to farm (update or create new)
-* @param {import('.').ServiceBio} pod The service name
+* @param {import('.').PodBio} pod The service name
 * @returns {string} the result
 */
 function deployService(pod) {

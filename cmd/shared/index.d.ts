@@ -13,7 +13,7 @@ interface AppPod {
 }
 
 // declare all types
-interface ServiceBio {
+interface PodBio {
     name: string;
     route: {
         app_port: number;
@@ -49,7 +49,7 @@ interface ServiceBio {
     }
 }
 export function getAppPod(): AppPod;
-export function deployService(pod: ServiceBio): string;
+export function deployService(pod: PodBio): string;
 export function getWork_dir(pod: AppPod): string;
 export function getImage_name(pod: AppPod): string;
 
